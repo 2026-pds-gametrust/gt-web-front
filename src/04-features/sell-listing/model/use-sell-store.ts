@@ -2,11 +2,13 @@ import { create } from 'zustand';
 import { catalogApi } from '@features/catalog/api/catalog-api';
 import { listingsApi } from '@features/listings/api/listings-api';
 import { mediaApi } from '@features/media/api/media-api';
+import { getActorId } from '@shared/lib/http';
 import type { IProduct } from '@entities/product/model';
 import { EMediaPurpose } from '@entities/media-asset/model';
-import { EListingCondition } from '@entities/listing/model';
+import { EListingCondition, EShippingMode } from '@entities/listing/model';
 import { EVIDENCE_CHECKLIST, type IEvidenceChecklistItem } from './evidence-checklist';
 import type { IRequiredChange } from '@entities/verification-case/model';
+import { buildListingShipping, listingDeliveryIncompleteReason } from '@features/listings/lib/listing-shipping';
 import {
   buildRevisionSnapshot,
   firstRevisionStep,
@@ -36,6 +38,20 @@ export type ESellStatus = (typeof ESellStatus)[keyof typeof ESellStatus];
 
 function isBlobUrl(url: string): boolean {
   return url.startsWith('blob:');
+}
+
+function packageDimsFromState(state: {
+  packageWeightGrams: number;
+  packageLengthCm: number;
+  packageWidthCm: number;
+  packageHeightCm: number;
+}) {
+  return {
+    packageWeightGrams: state.packageWeightGrams,
+    packageLengthCm: state.packageLengthCm,
+    packageWidthCm: state.packageWidthCm,
+    packageHeightCm: state.packageHeightCm,
+  };
 }
 
 function revokePreviewUrl(url: string | null | undefined): void {
@@ -74,9 +90,14 @@ type SellState = {
   videoAssetId: string | null;
   videoPreview: string | null;
   shippingModes: string[];
+  packageWeightGrams: number;
+  packageLengthCm: number;
+  packageWidthCm: number;
+  packageHeightCm: number;
   uploading: boolean;
   uploadStatus: string | null;
   submittedListingId: string | null;
+  draftListingId: string | null;
   revisionListingId: string | null;
   requiredChanges: IRequiredChange[];
   revisionBaseline: ReturnType<typeof buildRevisionSnapshot> | null;
@@ -84,6 +105,7 @@ type SellState = {
   error: string | null;
   loadOptions: () => Promise<void>;
   loadListingForRevision: (listingId: string) => Promise<void>;
+  ensureDraftListing: () => Promise<string | null>;
   setStep: (step: ESellStep) => void;
   setProductId: (id: string) => void;
   setCondition: (value: string) => void;
@@ -99,6 +121,12 @@ type SellState = {
   setVideo: (file: File) => Promise<void>;
   clearVideo: () => void;
   toggleShippingMode: (mode: string) => void;
+  setShippingPackage: (next: {
+    packageWeightGrams?: number;
+    packageLengthCm?: number;
+    packageWidthCm?: number;
+    packageHeightCm?: number;
+  }) => void;
   submit: () => Promise<void>;
   resubmitRevision: () => Promise<void>;
   canResubmitRevision: () => boolean;
@@ -119,9 +147,14 @@ const initialDraft = {
   videoAssetId: null as string | null,
   videoPreview: null as string | null,
   shippingModes: [] as string[],
+  packageWeightGrams: 0,
+  packageLengthCm: 0,
+  packageWidthCm: 0,
+  packageHeightCm: 0,
   uploading: false,
   uploadStatus: null as string | null,
   submittedListingId: null as string | null,
+  draftListingId: null as string | null,
   revisionListingId: null as string | null,
   requiredChanges: [] as IRequiredChange[],
   revisionBaseline: null as ReturnType<typeof buildRevisionSnapshot> | null,
@@ -178,6 +211,7 @@ export const useSellStore = create<SellState>((set, get) => ({
       set({
         loading: false,
         revisionListingId: listingId,
+        draftListingId: listingId,
         submittedListingId: listingId,
         requiredChanges: verification.requiredChanges,
         revisionBaseline: baseline,
@@ -192,6 +226,10 @@ export const useSellStore = create<SellState>((set, get) => ({
         videoAssetId,
         videoPreview: videoPreview || null,
         shippingModes: sellerListing.shipping.modes,
+        packageWeightGrams: sellerListing.shipping.packageWeightGrams ?? 0,
+        packageLengthCm: sellerListing.shipping.packageLengthCm ?? 0,
+        packageWidthCm: sellerListing.shipping.packageWidthCm ?? 0,
+        packageHeightCm: sellerListing.shipping.packageHeightCm ?? 0,
         step: firstRevisionStep(verification.requiredChanges) as ESellStep,
       });
     } catch (error) {
@@ -216,10 +254,16 @@ export const useSellStore = create<SellState>((set, get) => ({
       defects: state.defects,
       accessories: state.accessories,
     });
-    return isRevisionComplete(
-      state.requiredChanges,
-      snapshot,
-      state.revisionBaseline,
+    return (
+      isRevisionComplete(
+        state.requiredChanges,
+        snapshot,
+        state.revisionBaseline,
+      ) &&
+      !listingDeliveryIncompleteReason(
+        state.shippingModes,
+        packageDimsFromState(state),
+      )
     );
   },
 
@@ -230,7 +274,13 @@ export const useSellStore = create<SellState>((set, get) => ({
       return;
     }
     if (!get().canResubmitRevision()) {
-      set({ error: 'Corrija todos os itens solicitados antes de reenviar.' });
+      set({
+        error:
+          listingDeliveryIncompleteReason(
+            state.shippingModes,
+            packageDimsFromState(state),
+          ) ?? 'Corrija todos os itens solicitados antes de reenviar.',
+      });
       return;
     }
     set({ loading: true, error: null });
@@ -243,7 +293,12 @@ export const useSellStore = create<SellState>((set, get) => ({
           videoAssetId: state.videoAssetId ?? undefined,
         },
         priceCents: state.priceCents,
-        shipping: { modes: state.shippingModes as never },
+        shipping: buildListingShipping(state.shippingModes, {
+          packageWeightGrams: state.packageWeightGrams,
+          packageLengthCm: state.packageLengthCm,
+          packageWidthCm: state.packageWidthCm,
+          packageHeightCm: state.packageHeightCm,
+        }),
       });
       await listingsApi.submitListing(state.revisionListingId);
       set({
@@ -259,6 +314,62 @@ export const useSellStore = create<SellState>((set, get) => ({
             ? error.message
             : 'Falha ao reenviar o anúncio.',
       });
+    }
+  },
+
+  ensureDraftListing: async () => {
+    const state = get();
+    if (state.draftListingId) {
+      return state.draftListingId;
+    }
+    if (!state.productId) {
+      set({ error: 'Selecione um produto antes de enviar mídia.' });
+      return null;
+    }
+    set({ loading: true, error: null });
+    try {
+      const product = state.products.find((p) => p.id === state.productId);
+      const sellerId = getActorId();
+      if (!sellerId) {
+        throw new Error('Entre na sua conta para anunciar.');
+      }
+      const created = await listingsApi.createListing({
+        id: `lst-${Date.now()}`,
+        sellerId,
+        productId: state.productId,
+        title: `${product?.brand ?? ''} ${product?.model ?? ''}`.trim() || 'Anúncio',
+        description: `${state.defects}\n${state.accessories}`.trim(),
+        condition: state.condition as never,
+        priceCents: state.priceCents > 0 ? state.priceCents : 0,
+        media: {
+          photoUrls: [],
+          assetIds: state.photoAssetIds.length ? state.photoAssetIds : undefined,
+          videoAssetId: state.videoAssetId ?? undefined,
+        },
+        shipping: buildListingShipping(
+          state.shippingModes.length ? state.shippingModes : [EShippingMode.PICKUP],
+          {
+            packageWeightGrams: state.packageWeightGrams,
+            packageLengthCm: state.packageLengthCm,
+            packageWidthCm: state.packageWidthCm,
+            packageHeightCm: state.packageHeightCm,
+          },
+        ),
+      });
+      set({
+        loading: false,
+        draftListingId: created.id,
+      });
+      return created.id;
+    } catch (error) {
+      set({
+        loading: false,
+        error:
+          error instanceof Error && error.message
+            ? error.message
+            : 'Não foi possível preparar o anúncio para o código de posse.',
+      });
+      return null;
     }
   },
 
@@ -370,37 +481,82 @@ export const useSellStore = create<SellState>((set, get) => ({
     });
   },
 
+  setShippingPackage: (next) => {
+    set(next);
+  },
+
   submit: async () => {
     const state = get();
     if (!state.productId) {
       set({ error: 'Selecione um produto.' });
       return;
     }
+    const deliveryError = listingDeliveryIncompleteReason(
+      state.shippingModes,
+      packageDimsFromState(state),
+    );
+    if (deliveryError) {
+      set({ error: deliveryError });
+      return;
+    }
     set({ loading: true, error: null });
     try {
       const product = state.products.find((p) => p.id === state.productId);
-      const result = await listingsApi.submitListingDraft({
-        productId: state.productId,
-        title: `${product?.brand ?? ''} ${product?.model ?? ''}`.trim(),
-        condition: state.condition,
-        defects: state.defects,
-        accessories: state.accessories,
-        priceCents: state.priceCents,
-        evidenceIds: state.evidenceIds,
-        photoAssetIds: state.photoAssetIds,
-        videoAssetId: state.videoAssetId,
-        shippingModes: state.shippingModes,
-      });
+      const title = `${product?.brand ?? ''} ${product?.model ?? ''}`.trim();
+      const description = `${state.defects}\n${state.accessories}`.trim();
+      let listingId = state.draftListingId;
+
+      if (listingId) {
+        await listingsApi.updateListing(listingId, {
+          title,
+          description,
+          condition: state.condition as never,
+          priceCents: state.priceCents,
+          media: {
+            photoUrls: [],
+            assetIds: state.photoAssetIds,
+            videoAssetId: state.videoAssetId ?? undefined,
+          },
+          shipping: buildListingShipping(state.shippingModes, {
+            packageWeightGrams: state.packageWeightGrams,
+            packageLengthCm: state.packageLengthCm,
+            packageWidthCm: state.packageWidthCm,
+            packageHeightCm: state.packageHeightCm,
+          }),
+          attributes: {
+            defects: state.defects ? [state.defects] : [],
+            accessories: state.accessories ? [state.accessories] : [],
+          },
+        });
+        await listingsApi.submitListing(listingId);
+      } else {
+        const result = await listingsApi.submitListingDraft({
+          productId: state.productId,
+          title,
+          condition: state.condition,
+          defects: state.defects,
+          accessories: state.accessories,
+          priceCents: state.priceCents,
+          evidenceIds: state.evidenceIds,
+          photoAssetIds: state.photoAssetIds,
+          videoAssetId: state.videoAssetId,
+          shippingModes: state.shippingModes,
+          packageWeightGrams: state.packageWeightGrams,
+          packageLengthCm: state.packageLengthCm,
+          packageWidthCm: state.packageWidthCm,
+          packageHeightCm: state.packageHeightCm,
+        });
+        listingId = result.id;
+      }
+
       set({
         loading: false,
-        // UI still shows "under review"; API status is SUBMITTED.
         status: ESellStatus.UNDER_REVIEW,
-        submittedListingId: result.id,
+        submittedListingId: listingId,
+        draftListingId: listingId,
         step: ESellStep.REVIEW,
       });
     } catch (error) {
-      // Show what actually failed: a bare "falha ao enviar" leaves the seller with
-      // no idea which requirement the listing is missing.
       set({
         loading: false,
         error:
