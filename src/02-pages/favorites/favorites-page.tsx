@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AppShell } from '@widgets/app-shell/app-shell';
 import { FeedbackBanner } from '@shared/ui/feedback-banner/feedback-banner';
+import { PageHero } from '@shared/ui/page-hero/page-hero';
+import { EmptyState } from '@shared/ui/empty-state/empty-state';
+import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { useFavoritesStore } from '@features/favorites/model/use-favorites-store';
 import { EFavoriteTargetType } from '@entities/favorite/model';
 import { catalogApi } from '@features/catalog/api/catalog-api';
@@ -74,24 +77,26 @@ export function FavoritesPage() {
 
   return (
     <AppShell>
-      <section className="page-hero" aria-labelledby="favorites-heading">
-        <h1 id="favorites-heading">Favoritos</h1>
+      <PageHero titleId="favorites-heading" title="Favoritos">
         <p>Salve modelos e ofertas para comparar com calma — sem inventar verificação.</p>
-      </section>
+      </PageHero>
 
-      {loading || resolving ? <p className="home-status">Carregando favoritos…</p> : null}
+      {loading || resolving ? <Skeleton label="Carregando favoritos…" /> : null}
       {error ? (
         <FeedbackBanner variant="error" title="Favoritos indisponíveis" message={error} />
       ) : null}
 
       {!loading && !resolving && resolved.length === 0 ? (
-        <div className="empty-state">
-          <h2>Nenhum favorito ainda</h2>
-          <p>Salve modelos e ofertas para comparar com calma — sem inventar verificação.</p>
-          <Link className="gt-button" to="/buscar">
-            Buscar ofertas
-          </Link>
-        </div>
+        <EmptyState
+          title="Nenhum favorito ainda"
+          action={
+            <Link className="gt-button" to="/buscar">
+              Buscar ofertas
+            </Link>
+          }
+        >
+          Salve modelos e ofertas para comparar com calma — sem inventar verificação.
+        </EmptyState>
       ) : null}
 
       <ul className="panel-list">
