@@ -1,11 +1,14 @@
 import { useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import { AppShell } from '@widgets/app-shell/app-shell';
 import { SearchBar } from '@widgets/search-bar/search-bar';
 import { OfferCard } from '@widgets/offer-card/offer-card';
 import { useSearchStore } from '@features/search/model/use-search-store';
 import { formatMoney } from '@shared/lib/format';
 import { Button } from '@shared/ui/button/button';
+import { PageHero } from '@shared/ui/page-hero/page-hero';
+import { EmptyState } from '@shared/ui/empty-state/empty-state';
+import { Skeleton } from '@shared/ui/skeleton/skeleton';
 
 const CONDITION_LABELS: Record<string, string> = {
   NEW: 'Novo',
@@ -17,6 +20,7 @@ const CONDITION_LABELS: Record<string, string> = {
 
 export function SearchPage() {
   const [params, setParams] = useSearchParams();
+  const location = useLocation();
   const q = params.get('q') ?? '';
   const verifiedOnly = params.get('selo') === 'verificado';
   const {
@@ -50,17 +54,29 @@ export function SearchPage() {
 
   const empty = !loading && result && result.total === 0;
 
+  if (!loading && error) {
+    return (
+      <Navigate
+        to="/erro"
+        replace
+        state={{ from: `${location.pathname}${location.search}` }}
+      />
+    );
+  }
+
   return (
     <AppShell>
-      <section className="page-hero" aria-labelledby="search-heading">
-        <h1 id="search-heading">{verifiedOnly ? 'Ofertas verificadas' : 'Buscar'}</h1>
+      <PageHero
+        titleId="search-heading"
+        title={verifiedOnly ? 'Ofertas verificadas' : 'Buscar'}
+      >
         <p>
           {verifiedOnly
             ? 'Somente anúncios com pelo menos um selo concedido após processo.'
             : 'Compare modelos e ofertas. Patrocínios aparecem rotulados — nunca como selo de confiança.'}
         </p>
         <SearchBar initialQuery={q} />
-      </section>
+      </PageHero>
 
       <div className="toolbar" role="group" aria-label="Modo de visualização">
         <button
@@ -107,7 +123,7 @@ export function SearchPage() {
           ))}
           {(conditionFilter || brandFilter) && (
             <Button
-              className="gt-button gt-button--ghost"
+              variant="ghost"
               onClick={() => {
                 setConditionFilter(null);
                 setBrandFilter(null);
@@ -119,31 +135,31 @@ export function SearchPage() {
         </div>
       ) : null}
 
-      {loading ? <p>Carregando resultados…</p> : null}
-      {error ? <p role="alert">{error}</p> : null}
+      {loading ? <Skeleton label="Carregando resultados…" /> : null}
 
       {empty ? (
-        <div className="empty-state">
-          <h2>Nenhum resultado para “{q || 'sua busca'}”</h2>
-          <p>
-            Tente outro modelo, remova filtros ou explore categorias populares como Placas de Vídeo e
-            Notebooks.
-          </p>
-          <Button
-            onClick={() => {
-              setConditionFilter(null);
-              setBrandFilter(null);
-              setParams(q ? { q } : {});
-              void runSearch({ q });
-            }}
-          >
-            Tentar de novo
-          </Button>
-        </div>
+        <EmptyState
+          title={`Nenhum resultado para “${q || 'sua busca'}”`}
+          action={
+            <Button
+              onClick={() => {
+                setConditionFilter(null);
+                setBrandFilter(null);
+                setParams(q ? { q } : {});
+                void runSearch({ q });
+              }}
+            >
+              Tentar de novo
+            </Button>
+          }
+        >
+          Tente outro modelo, remova filtros ou explore categorias populares como Placas de Vídeo e
+          Notebooks.
+        </EmptyState>
       ) : null}
 
       {!loading && result && result.total > 0 && view === 'offers' ? (
-        <div className="offer-grid">
+        <div className="offer-grid gt-stagger">
           {result.documents.map((doc) => (
             <OfferCard key={doc.id} document={doc} />
           ))}
@@ -151,12 +167,12 @@ export function SearchPage() {
       ) : null}
 
       {!loading && result && result.total > 0 && view === 'products' ? (
-        <div className="product-group-list">
+        <div className="product-group-list gt-stagger">
           {result.productGroups.map((group) => (
             <Link
               key={group.productId}
               to={`/produto/${group.productId}`}
-              className="product-group-card"
+              className="product-group-card gt-hover-lift gt-fade-up"
             >
               <div>
                 <h3>
