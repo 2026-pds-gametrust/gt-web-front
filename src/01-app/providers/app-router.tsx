@@ -4,6 +4,7 @@ import { SearchPage } from '@pages/search/search-page';
 import { ProductPage } from '@pages/product/product-page';
 import { ListingPage } from '@pages/listing/listing-page';
 import { SellPage } from '@pages/sell/sell-page';
+import { ListingEvidencePage } from '@pages/listing-evidence/listing-evidence-page';
 import { ReviseListingPage } from '@pages/revise-listing/revise-listing-page';
 import { MyListingsPage } from '@pages/my-listings/my-listings-page';
 import { FavoritesPage } from '@pages/favorites/favorites-page';
@@ -15,6 +16,8 @@ import { EmBrevePage } from '@pages/em-breve/em-breve-page';
 import { LoginPage } from '@pages/auth/login-page';
 import { RegisterPage } from '@pages/auth/register-page';
 import { RegisterSuccessPage } from '@pages/auth/register-success-page';
+import { NotFoundPage } from '@pages/error/not-found-page';
+import { ServerErrorPage } from '@pages/error/server-error-page';
 import { RequireAuth } from '@app/providers/require-auth';
 
 export function AppRouter() {
@@ -35,6 +38,14 @@ export function AppRouter() {
         element={
           <RequireAuth>
             <SellPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/meus-anuncios/:listingId/evidencias"
+        element={
+          <RequireAuth>
+            <ListingEvidencePage />
           </RequireAuth>
         }
       />
@@ -94,6 +105,8 @@ export function AppRouter() {
           </RequireAuth>
         }
       />
+      <Route path="/erro" element={<ServerErrorPage />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
