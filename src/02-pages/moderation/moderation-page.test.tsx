@@ -79,6 +79,12 @@ jest.mock('@features/verification/api/verification-api', () => ({
         createdAt: '2026-08-05T10:00:00.000Z',
       },
     ]),
+    getProofCode: jest.fn().mockResolvedValue({
+      code: 'AB12CD34',
+      caseId: 'case-pending-1',
+      listingId: 'lst-4060-plain',
+      issuedAt: '2026-08-05T10:00:00.000Z',
+    }),
     assignVerificationCase: (...args: unknown[]) => assign(...args),
     approveVerificationCase: (...args: unknown[]) => approve(...args),
     rejectVerificationCase: jest.fn(),
