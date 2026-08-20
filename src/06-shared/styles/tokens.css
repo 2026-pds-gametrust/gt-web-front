@@ -1,0 +1,37 @@
+:root {
+  color-scheme: light;
+  /* Brand tokens — monograma GT */
+  --gt-bg: #f3f3f3;
+  --gt-surface: #ffffff;
+  --gt-surface-muted: #ececec;
+  --gt-border: #d0d0d0;
+  --gt-border-strong: #b0b0b0;
+  --gt-text: #181818;
+  --gt-muted: #5a5a5a;
+  --gt-accent: #f83800;
+  --gt-accent-hover: #d43000;
+  --gt-accent-soft: #fff1ec;
+  --gt-header: #181818;
+  --gt-header-text: #f5f5f5;
+  --gt-danger: #c0392b;
+  --gt-warning: #b7791f;
+  --gt-sponsored: #5c4a2e;
+  --gt-sponsored-bg: #f3ebe0;
+  --gt-seal: #0b6e7a;
+  --gt-seal-bg: #e6f3f5;
+  --gt-radius-sm: 0.125rem;
+  --gt-radius: 0.25rem;
+  --gt-radius-lg: 0.25rem;
+  --gt-space-1: 0.25rem;
+  --gt-space-2: 0.5rem;
+  --gt-space-3: 0.75rem;
+  --gt-space-4: 1rem;
+  --gt-space-5: 1.5rem;
+  --gt-space-6: 2rem;
+  --gt-space-8: 3rem;
+  --gt-font: 'Rajdhani', 'Exo 2', 'Segoe UI', sans-serif;
+  --gt-font-display: 'Exo 2', 'Rajdhani', sans-serif;
+  --gt-shadow: 0 1px 2px rgba(24, 24, 24, 0.08);
+  --gt-shadow-lift: 0 10px 28px rgba(24, 24, 24, 0.12);
+  --gt-max: 1280px;
+}
