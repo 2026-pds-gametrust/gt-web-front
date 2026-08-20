@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { verificationApi } from '@features/verification/api/verification-api';
-import { waitForVerificationCaseId } from '@features/verification/lib/wait-for-verification-case';
 import type { IProofCode } from '@entities/verification-case/model';
 
-/** Loads possession proof code for a listing — no extra media upload. */
+/** Loads possession proof code for a listing (opens case if needed). */
 export function useProofCode(listingId: string | null) {
   const [proofCode, setProofCode] = useState<IProofCode | null>(null);
   const [loading, setLoading] = useState(false);
@@ -16,8 +15,7 @@ export function useProofCode(listingId: string | null) {
     setLoading(true);
     setError(null);
     try {
-      const caseId = await waitForVerificationCaseId(listingId);
-      const code = await verificationApi.getProofCode(caseId);
+      const code = await verificationApi.getProofCodeForListing(listingId);
       setProofCode(code);
     } catch (bootstrapError) {
       setError(
