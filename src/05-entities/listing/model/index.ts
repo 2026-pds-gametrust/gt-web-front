@@ -36,6 +36,9 @@ export const EWarrantyType = {
 
 export type EWarrantyType = (typeof EWarrantyType)[keyof typeof EWarrantyType];
 
+/** Carlos needs enough angles of the actual unit — cover + sides/defects. */
+export const MIN_LISTING_PHOTOS = 3;
+
 export interface IListingMedia {
   photoUrls: string[];
   videoUrl?: string;
