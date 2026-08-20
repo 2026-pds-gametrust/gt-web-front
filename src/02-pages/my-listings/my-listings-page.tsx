@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AppShell } from '@widgets/app-shell/app-shell';
-import { Button } from '@shared/ui/button/button';
+import { Button, buttonClassName } from '@shared/ui/button/button';
 import { FeedbackBanner } from '@shared/ui/feedback-banner/feedback-banner';
 import { PageHero } from '@shared/ui/page-hero/page-hero';
 import { EmptyState } from '@shared/ui/empty-state/empty-state';
@@ -116,7 +116,7 @@ export function MyListingsPage() {
       </PageHero>
 
       <div
-        className="wizard-actions"
+        className="mt-6 flex flex-wrap gap-3"
         role="tablist"
         aria-label="Filtrar por status"
       >
@@ -126,11 +126,7 @@ export function MyListingsPage() {
             type="button"
             role="tab"
             aria-selected={statusFilter === filter.value}
-            className={
-              statusFilter === filter.value
-                ? 'gt-button'
-                : 'gt-button gt-button--ghost'
-            }
+            variant={statusFilter === filter.value ? 'primary' : 'ghost'}
             onClick={() => setStatusFilter(filter.value)}
           >
             {filter.label}
@@ -158,7 +154,7 @@ export function MyListingsPage() {
             statusFilter ? 'Nenhum anúncio neste status' : 'Você ainda não tem anúncios'
           }
           action={
-            <Link className="gt-button" to="/vender">
+            <Link className={buttonClassName()} to="/vender">
               Anunciar
             </Link>
           }
@@ -170,7 +166,7 @@ export function MyListingsPage() {
       ) : null}
 
       {!loading && listings.length > 0 ? (
-        <ul className="offer-grid" aria-label="Seus anúncios">
+        <ul className="grid list-none grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4 p-0 m-0" aria-label="Seus anúncios">
           {listings.map((listing) => {
             const verificationLabel = sellerVerificationLabel(
               listing.verificationCase,
@@ -184,19 +180,19 @@ export function MyListingsPage() {
               listing.verificationCase,
             );
             return (
-              <li key={listing.id} className="offer-card">
-                <h3 className="offer-card__title">
+              <li key={listing.id} className="flex flex-col gap-2 rounded border border-border bg-surface p-3">
+                <h3 className="m-0 font-display text-base font-bold leading-[1.3]">
                   <Link to={`/anuncio/${listing.id}`}>{listing.title}</Link>
                 </h3>
-                <p className="offer-card__meta">
+                <p className="m-0 text-[0.875rem] text-muted">
                   {STATUS_LABEL[listing.status] ?? listing.status} ·{' '}
                   {formatMoney(listing.priceCents)}
                 </p>
                 {verificationLabel ? (
-                  <p className="offer-card__meta">{verificationLabel}</p>
+                  <p className="m-0 text-[0.875rem] text-muted">{verificationLabel}</p>
                 ) : null}
                 {revisionNeeded && listing.verificationCase?.requiredChanges ? (
-                  <ul className="offer-card__meta">
+                  <ul className="m-0 list-none p-0 text-[0.875rem] text-muted">
                     {listing.verificationCase.requiredChanges.map((change, index) => (
                       <li key={`${change.target}-${change.assetId ?? index}`}>
                         {formatRequiredChangeItem(change)}
@@ -206,7 +202,7 @@ export function MyListingsPage() {
                 ) : null}
 
                 {editingId === listing.id ? (
-                  <div className="form-field">
+                  <div className="mb-4 flex flex-col gap-2">
                     <label htmlFor={`price-${listing.id}`}>Novo preço (R$)</label>
                     <input
                       id={`price-${listing.id}`}
@@ -232,18 +228,15 @@ export function MyListingsPage() {
                     >
                       Salvar
                     </Button>
-                    <Button
-                      className="gt-button--ghost"
-                      onClick={() => setEditingId(null)}
-                    >
+                    <Button variant="ghost" onClick={() => setEditingId(null)}>
                       Cancelar
                     </Button>
                   </div>
                 ) : (
-                  <div className="wizard-actions">
+                  <div className="mt-6 flex flex-wrap gap-3">
                     {canEditPrice(listing) ? (
                       <Button
-                        className="gt-button--ghost"
+                        variant="ghost"
                         onClick={() => {
                           setEditingId(listing.id);
                           setPriceInput(String(listing.priceCents / 100));
@@ -255,7 +248,7 @@ export function MyListingsPage() {
 
                     {revisionNeeded ? (
                       <Link
-                        className="gt-button"
+                        className={buttonClassName()}
                         to={`/meus-anuncios/${listing.id}/corrigir`}
                       >
                         Corrigir anúncio
@@ -264,7 +257,7 @@ export function MyListingsPage() {
 
                     {needsPossessionEvidence(listing) ? (
                       <Link
-                        className="gt-button gt-button--ghost"
+                        className={buttonClassName({ variant: 'ghost' })}
                         to={`/meus-anuncios/${listing.id}/evidencias`}
                       >
                         Ver código de posse
@@ -298,7 +291,7 @@ export function MyListingsPage() {
                     ) : null}
 
                     {terminalRejected ? (
-                      <p className="offer-card__meta" role="status">
+                      <p className="m-0 text-[0.875rem] text-muted" role="status">
                         Este anúncio foi encerrado e não pode ser reenviado.
                       </p>
                     ) : null}
