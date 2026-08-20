@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { AppShell } from '@widgets/app-shell/app-shell';
 import { useAuthStore } from '@features/auth/model/use-auth-store';
+import { Skeleton } from '@shared/ui/skeleton/skeleton';
+import { PageHero } from '@shared/ui/page-hero/page-hero';
 
 type RequireAuthProps = {
   children: ReactNode;
@@ -22,7 +24,7 @@ export function RequireAuth({ children, requireOperator = false }: RequireAuthPr
   if (status === 'idle' || status === 'loading') {
     return (
       <AppShell>
-        <p className="home-status">Carregando sessão…</p>
+        <Skeleton label="Carregando sessão…" />
       </AppShell>
     );
   }
@@ -41,8 +43,7 @@ export function RequireAuth({ children, requireOperator = false }: RequireAuthPr
   if (requireOperator && !canOperate) {
     return (
       <AppShell>
-        <section className="page-hero">
-          <h1>Sem permissão</h1>
+        <PageHero titleId="no-permission-heading" title="Sem permissão">
           <p>
             Esta área é do time de backoffice. Sua conta continua ativa — apenas não está no
             grupo necessário.
@@ -50,7 +51,7 @@ export function RequireAuth({ children, requireOperator = false }: RequireAuthPr
           <Link className="gt-button gt-button--ghost" to="/">
             Voltar ao início
           </Link>
-        </section>
+        </PageHero>
       </AppShell>
     );
   }
