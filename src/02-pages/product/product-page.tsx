@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { AppShell } from '@widgets/app-shell/app-shell';
 import { OfferCard } from '@widgets/offer-card/offer-card';
 import { catalogApi } from '@features/catalog/api/catalog-api';
@@ -10,6 +10,11 @@ import { FavoriteToggle } from '@features/favorites/ui/favorite-toggle';
 import { EFavoriteTargetType } from '@entities/favorite/model';
 import { searchDocumentFromListing } from '@entities/search-document/lib/from-listing';
 import { formatMoney } from '@shared/lib/format';
+import { PageHero } from '@shared/ui/page-hero/page-hero';
+import { EmptyState } from '@shared/ui/empty-state/empty-state';
+import { Skeleton } from '@shared/ui/skeleton/skeleton';
+import { NotFoundPage } from '@pages/error/not-found-page';
+import { ApiError } from '@shared/lib/http';
 
 export function ProductPage() {
   const { productId = '' } = useParams();
@@ -17,26 +22,35 @@ export function ProductPage() {
   const [listings, setListings] = useState<IListing[]>([]);
   const [cards, setCards] = useState<ISearchDocument[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
+  const load = useCallback(async () => {
     setLoading(true);
-    void (async () => {
+    setError(null);
+    try {
       const [prod, offers] = await Promise.all([
         catalogApi.getProduct(productId),
         catalogApi.getListingsByProduct(productId),
       ]);
-      if (cancelled) return;
       setProduct(prod);
       setListings(offers);
-      const docs = offers.map((listing) => searchDocumentFromListing(listing, prod));
-      setCards(docs);
+      setCards(offers.map((listing) => searchDocumentFromListing(listing, prod)));
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 404) {
+        setProduct(null);
+        setError(null);
+      } else {
+        setError('Não foi possível carregar este produto agora.');
+        setProduct(null);
+      }
+    } finally {
       setLoading(false);
-    })();
-    return () => {
-      cancelled = true;
-    };
+    }
   }, [productId]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const priceRange = useMemo(() => {
     if (listings.length === 0) return null;
@@ -51,28 +65,23 @@ export function ProductPage() {
   if (loading) {
     return (
       <AppShell>
-        <p>Carregando produto…</p>
+        <Skeleton label="Carregando produto…" />
       </AppShell>
     );
   }
 
+  if (error) {
+    return <Navigate to="/erro" replace state={{ from: `/produto/${productId}` }} />;
+  }
+
   if (!product) {
-    return (
-      <AppShell>
-        <div className="empty-state">
-          <h2>Produto não encontrado</h2>
-          <p>O modelo pode ter sido removido do catálogo mock.</p>
-          <Link to="/buscar">Voltar à busca</Link>
-        </div>
-      </AppShell>
-    );
+    return <NotFoundPage />;
   }
 
   return (
     <AppShell>
-      <section className="page-hero" aria-labelledby="product-heading">
+      <PageHero titleId="product-heading" title={product.model}>
         <p className="offer-card__meta">{product.brand}</p>
-        <h1 id="product-heading">{product.model}</h1>
         <p>
           Modelo de catálogo — as ofertas abaixo são unidades usadas de vendedores diferentes.
         </p>
@@ -86,7 +95,7 @@ export function ProductPage() {
         ) : (
           <p>Sem ofertas publicadas no momento.</p>
         )}
-      </section>
+      </PageHero>
 
       {product.specs ? (
         <section className="listing-section section-block" aria-labelledby="specs-heading">
@@ -104,11 +113,17 @@ export function ProductPage() {
 
       <section className="section-block" aria-labelledby="offers-heading">
         <h2 id="offers-heading">Ofertas deste produto</h2>
-        <div className="offer-grid">
-          {cards.map((doc) => (
-            <OfferCard key={doc.id} document={doc} />
-          ))}
-        </div>
+        {cards.length === 0 ? (
+          <EmptyState title="Sem ofertas publicadas" action={<Link className="gt-button gt-button--ghost" to="/buscar">Buscar outros modelos</Link>}>
+            Este modelo ainda não tem unidades à venda.
+          </EmptyState>
+        ) : (
+          <div className="offer-grid gt-stagger">
+            {cards.map((doc) => (
+              <OfferCard key={doc.id} document={doc} />
+            ))}
+          </div>
+        )}
       </section>
     </AppShell>
   );
