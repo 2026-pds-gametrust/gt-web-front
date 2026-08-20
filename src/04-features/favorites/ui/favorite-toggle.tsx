@@ -3,6 +3,7 @@ import {
   EFavoriteTargetType,
   useFavoritesStore,
 } from '@features/favorites/model/use-favorites-store';
+import { cn } from '@shared/lib/cn';
 
 type FavoriteToggleProps = {
   targetType: (typeof EFavoriteTargetType)[keyof typeof EFavoriteTargetType];
@@ -14,7 +15,7 @@ type FavoriteToggleProps = {
 function HeartIcon({ filled }: { filled: boolean }) {
   return (
     <svg
-      className="favorite-toggle__icon"
+      className="block"
       viewBox="0 0 24 24"
       width="22"
       height="22"
@@ -49,7 +50,11 @@ export function FavoriteToggle({
   return (
     <button
       type="button"
-      className={`favorite-toggle${isFavorite ? ' is-active' : ''}`}
+      className={cn(
+        'inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded border border-border-strong bg-surface p-0 text-ink focus-ring',
+        'hover:border-accent hover:text-accent',
+        'aria-pressed:border-accent aria-pressed:bg-accent-soft aria-pressed:text-accent',
+      )}
       aria-label={name}
       aria-pressed={isFavorite}
       title={name}
