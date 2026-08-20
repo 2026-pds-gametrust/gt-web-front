@@ -143,7 +143,7 @@ export function RegisterPage() {
         }
       >
         <form
-          className={shakeForm ? 'gt-shake' : ''}
+          className={shakeForm ? 'animate-shake' : ''}
           onSubmit={(event) => void onSubmit(event)}
           noValidate
         >
@@ -247,7 +247,7 @@ export function RegisterPage() {
             />
           ) : null}
 
-          <div className="wizard-actions">
+          <div className="mt-6 flex flex-wrap gap-3">
             <Button type="submit" disabled={busy} loading={busy}>
               {busy ? 'Criando…' : 'Criar conta'}
             </Button>
