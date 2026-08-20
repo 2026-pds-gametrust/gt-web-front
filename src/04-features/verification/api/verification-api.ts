@@ -50,7 +50,7 @@ export const verificationApi = {
   /** @deprecated Use listVerificationCases with query params — returns the moderation page. */
   async listVerificationCasesLegacy(): Promise<IVerificationCase[]> {
     const page = await this.listVerificationCases();
-    return page.items;
+    return page.items as unknown as IVerificationCase[];
   },
 
   async createVerificationCase(input: INewVerificationCase): Promise<IVerificationCase> {
@@ -66,6 +66,14 @@ export const verificationApi = {
   async getProofCode(caseId: string): Promise<IProofCode> {
     const { data } = await httpClient.get<IProofCode>(
       `/verification-cases/${caseId}/proof-code`,
+    );
+    return data;
+  },
+
+  /** Ensures open case for listing and returns plaintext code (draft-safe). */
+  async getProofCodeForListing(listingId: string): Promise<IProofCode> {
+    const { data } = await httpClient.get<IProofCode>(
+      `/listings/${listingId}/proof-code`,
     );
     return data;
   },
