@@ -3,13 +3,16 @@ import { Link } from 'react-router-dom';
 import { AppShell } from '@widgets/app-shell/app-shell';
 import { Button } from '@shared/ui/button/button';
 import { FeedbackBanner } from '@shared/ui/feedback-banner/feedback-banner';
+import { FormField } from '@shared/ui/form-field/form-field';
+import { ListingMediaEditor } from '@widgets/listing-media/listing-media-editor';
 import { formatMoney } from '@shared/lib/format';
 import {
   ESellStatus,
   ESellStep,
   useSellStore,
 } from '@features/sell-listing/model/use-sell-store';
-import { EListingCondition, EShippingMode } from '@entities/listing/model';
+import { VerificationEvidencePanel } from '@widgets/verification-evidence/verification-evidence-panel';
+import { EListingCondition, EShippingMode, MIN_LISTING_PHOTOS } from '@entities/listing/model';
 
 const STEP_LABELS = [
   'Identificar',
@@ -44,9 +47,8 @@ export function SellPage() {
   const canContinueDescribe = Boolean(store.condition);
   const canContinuePrice = store.priceCents > 0;
   const canContinueEvidence = store.evidenceIds.length > 0;
-  // Mirrors what the backend demands to create: >=1 photo, a video and a shipping mode.
   const canContinueMedia =
-    store.photoAssetIds.length > 0 &&
+    store.photoAssetIds.length >= MIN_LISTING_PHOTOS &&
     Boolean(store.videoAssetId) &&
     store.shippingModes.length > 0;
 
@@ -57,8 +59,9 @@ export function SellPage() {
           <FeedbackBanner
             variant="success"
             title="Anúncio enviado para revisão"
-            message="Nenhum selo é exibido até a verificação ser concluída e aprovada. Acompanhe o status em Meus anúncios."
+            message="Suas fotos e vídeo já foram enviados. Anote o código abaixo e confira se ele aparece legível junto ao produto na mídia do anúncio."
           />
+          <VerificationEvidencePanel listingId={store.submittedListingId} compact />
           <div className="wizard-actions">
             <Button
               onClick={() => {
@@ -68,8 +71,8 @@ export function SellPage() {
             >
               Criar outro anúncio
             </Button>
-            <Link className="gt-button gt-button--ghost" to="/" style={{ display: 'inline-flex', alignItems: 'center' }}>
-              Voltar ao início
+            <Link className="gt-button gt-button--ghost" to="/meus-anuncios" style={{ display: 'inline-flex', alignItems: 'center' }}>
+              Meus anúncios
             </Link>
           </div>
         </div>
@@ -95,15 +98,13 @@ export function SellPage() {
         })}
       </div>
 
-      <div className="wizard-panel">
+      <div className="wizard-panel gt-fade-up">
         {store.step === ESellStep.IDENTIFY ? (
           <>
             <h1>Identificar o produto</h1>
             <p className="lead">Escolha o modelo de catálogo (Produto ≠ Oferta).</p>
-            <div className="form-field">
-              <label htmlFor="sell-product">Produto</label>
+            <FormField id="sell-product" label="Produto" required>
               <select
-                id="sell-product"
                 value={store.productId ?? ''}
                 onChange={(e) => store.setProductId(e.target.value)}
               >
@@ -114,7 +115,7 @@ export function SellPage() {
                   </option>
                 ))}
               </select>
-            </div>
+            </FormField>
             <div className="wizard-actions">
               <Button disabled={!canContinueIdentify} onClick={() => store.setStep(ESellStep.DESCRIBE)}>
                 Continuar
@@ -127,10 +128,8 @@ export function SellPage() {
           <>
             <h1>Descrever a unidade</h1>
             <p className="lead">Condição, defeitos e acessórios da sua unidade usada.</p>
-            <div className="form-field">
-              <label htmlFor="sell-condition">Condição</label>
+            <FormField id="sell-condition" label="Condição" required>
               <select
-                id="sell-condition"
                 value={store.condition}
                 onChange={(e) => store.setCondition(e.target.value)}
               >
@@ -140,25 +139,21 @@ export function SellPage() {
                   </option>
                 ))}
               </select>
-            </div>
-            <div className="form-field">
-              <label htmlFor="sell-defects">Defeitos / conservação</label>
+            </FormField>
+            <FormField id="sell-defects" label="Defeitos / conservação">
               <textarea
-                id="sell-defects"
                 value={store.defects}
                 onChange={(e) => store.setDefects(e.target.value)}
                 placeholder="Ex.: risco cosmético na tampa"
               />
-            </div>
-            <div className="form-field">
-              <label htmlFor="sell-accessories">Acessórios</label>
+            </FormField>
+            <FormField id="sell-accessories" label="Acessórios">
               <textarea
-                id="sell-accessories"
                 value={store.accessories}
                 onChange={(e) => store.setAccessories(e.target.value)}
                 placeholder="Ex.: caixa, cabo, carregador"
               />
-            </div>
+            </FormField>
             <div className="wizard-actions">
               <Button className="gt-button--ghost" onClick={() => store.setStep(ESellStep.IDENTIFY)}>
                 Voltar
@@ -174,55 +169,29 @@ export function SellPage() {
           <>
             <h1>Fotos e vídeo</h1>
             <p className="lead">
-              A oferta só pode ser criada com pelo menos uma foto e um vídeo da sua unidade.
+              A oferta precisa de pelo menos {MIN_LISTING_PHOTOS} fotos da unidade e um vídeo MP4.
             </p>
 
-            <div className="form-field">
-              <label htmlFor="sell-photo">Fotos da unidade</label>
-              <input
-                id="sell-photo"
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                disabled={store.uploading}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) void store.addPhoto(file);
-                  e.target.value = '';
-                }}
-              />
-              {store.photoAssetIds.length > 0 ? (
-                <ul className="bullet-list" aria-label="Fotos enviadas">
-                  {store.photoAssetIds.map((assetId, index) => (
-                    <li key={assetId}>
-                      Foto {index + 1} pronta
-                      <button
-                        type="button"
-                        className="gt-button gt-button--ghost"
-                        onClick={() => store.removePhoto(assetId)}
-                      >
-                        Remover
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </div>
+            <FeedbackBanner
+              variant="info"
+              title="Código de posse nas fotos e no vídeo"
+              message="Anote o código (exibido após enviar) em um papel legível e deixe-o visível junto ao produto no mesmo quadro das fotos e do vídeo. Use letra clara — o código usa caracteres fáceis de ler (sem 0/O ou 1/I)."
+            />
 
-            <div className="form-field">
-              <label htmlFor="sell-video">Vídeo da unidade (MP4)</label>
-              <input
-                id="sell-video"
-                type="file"
-                accept="video/mp4"
-                disabled={store.uploading}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) void store.setVideo(file);
-                  e.target.value = '';
-                }}
-              />
-              {store.videoAssetId ? <p className="offer-card__meta">Vídeo pronto</p> : null}
-            </div>
+            <ListingMediaEditor
+              photoAssetIds={store.photoAssetIds}
+              photoPreviews={store.photoPreviews}
+              videoAssetId={store.videoAssetId}
+              videoPreview={store.videoPreview}
+              uploading={store.uploading}
+              uploadStatus={store.uploadStatus}
+              onAddPhotos={(files) => void store.addPhotos(files)}
+              onRemovePhoto={store.removePhoto}
+              onMovePhoto={store.movePhoto}
+              onReorderPhotos={store.reorderPhotos}
+              onSetVideo={(file) => void store.setVideo(file)}
+              onClearVideo={store.clearVideo}
+            />
 
             <fieldset className="form-field">
               <legend>Formas de entrega</legend>
@@ -240,7 +209,6 @@ export function SellPage() {
               </div>
             </fieldset>
 
-            {store.uploadStatus ? <p className="offer-card__meta">{store.uploadStatus}</p> : null}
             {store.error ? (
               <FeedbackBanner variant="error" title="Não foi possível enviar" message={store.error} />
             ) : null}
@@ -256,6 +224,15 @@ export function SellPage() {
                 Continuar
               </Button>
             </div>
+            {!canContinueMedia && !store.uploading ? (
+              <p className="form-hint">
+                {store.photoAssetIds.length < MIN_LISTING_PHOTOS
+                  ? `Envie pelo menos ${MIN_LISTING_PHOTOS} fotos da unidade para continuar.`
+                  : !store.videoAssetId
+                    ? 'Envie um vídeo MP4 da unidade para continuar.'
+                    : 'Escolha ao menos uma forma de entrega.'}
+              </p>
+            ) : null}
           </>
         ) : null}
 
@@ -294,7 +271,10 @@ export function SellPage() {
         {store.step === ESellStep.EVIDENCE ? (
           <>
             <h1>Checklist de evidências</h1>
-            <p className="lead">Marque o que você consegue enviar. Selos só após revisão aprovada.</p>
+            <p className="lead">
+              Marque o que você consegue mostrar nas fotos e no vídeo. Selos só após revisão
+              aprovada. O código de posse será exibido logo após o envio.
+            </p>
             <div className="checkbox-list">
               {store.evidenceOptions.map((item) => (
                 <label key={item.id} className="checkbox-row">
