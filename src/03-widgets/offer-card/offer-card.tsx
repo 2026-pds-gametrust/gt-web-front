@@ -31,7 +31,7 @@ export function OfferCard({ document, reason, href }: OfferCardProps) {
     document.brand && document.model ? `${document.brand} ${document.model}` : document.model;
 
   return (
-    <article className="offer-card">
+    <article className="offer-card gt-hover-lift">
       <div className="offer-card__top">
         <span className="offer-card__top-spacer" aria-hidden="true" />
         <div className="offer-card__actions">
