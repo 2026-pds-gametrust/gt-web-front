@@ -9,7 +9,7 @@ export function CategoryShortcuts({ categories }: CategoryShortcutsProps) {
   if (categories.length === 0) return null;
 
   return (
-    <nav className="category-shortcuts" aria-label="Departamentos">
+    <nav className="category-shortcuts gt-fade-up" aria-label="Departamentos">
       <ul className="category-shortcuts__list">
         {categories.map((category) => (
           <li key={category.id}>
