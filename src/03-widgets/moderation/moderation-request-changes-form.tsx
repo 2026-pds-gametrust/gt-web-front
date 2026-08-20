@@ -12,6 +12,8 @@ export type ModerationChangeDraft = {
   label: string;
   reason: string;
   selected: boolean;
+  /** Pre-marcado por análise de IA — Camila deve confirmar, não aceitar cego. */
+  suggestedByAi: boolean;
 };
 
 type BuildChangeDraftsParams = {
@@ -38,6 +40,7 @@ export function buildModerationChangeDrafts({
       label: `Foto ${index + 1}`,
       reason: '',
       selected: false,
+      suggestedByAi: false,
     });
   });
 
@@ -49,6 +52,7 @@ export function buildModerationChangeDrafts({
       label: 'Vídeo',
       reason: '',
       selected: false,
+      suggestedByAi: false,
     });
   }
 
@@ -58,13 +62,18 @@ export function buildModerationChangeDrafts({
     label: 'Descrição',
     reason: '',
     selected: false,
+    suggestedByAi: false,
   });
 
   if (aiFailItemIds.length > 0) {
-    return drafts.map((draft) => ({
-      ...draft,
-      selected: aiFailItemIds.some((id) => draft.key.includes(id)),
-    }));
+    return drafts.map((draft) => {
+      const suggestedByAi = aiFailItemIds.some((id) => draft.key.includes(id));
+      return {
+        ...draft,
+        selected: suggestedByAi,
+        suggestedByAi,
+      };
+    });
   }
 
   return drafts;
