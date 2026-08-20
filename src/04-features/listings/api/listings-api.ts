@@ -7,7 +7,7 @@ import type {
   IUpdateListing,
   EListingStatus,
 } from '@entities/listing/model';
-import { EListingStatus as ListingStatusEnum } from '@entities/listing/model';
+import { EListingStatus as ListingStatusEnum, MIN_LISTING_PHOTOS } from '@entities/listing/model';
 import type { IListingEvent } from '@entities/listing-event/model';
 import type { ISearchDocument } from '@entities/search-document/model';
 import { searchApi } from '@features/search/api/search-api';
@@ -118,9 +118,9 @@ export const listingsApi = {
     const shippingModes = draft.shippingModes ?? [];
 
     // Fail here, with a reason the wizard can show, instead of letting the backend
-    // answer a generic 400: create needs at least one photo, a video and a shipping mode.
-    if (photoAssetIds.length === 0) {
-      throw new Error('Envie ao menos uma foto da unidade.');
+    // answer a generic 400: create needs photos, a video and a shipping mode.
+    if (photoAssetIds.length < MIN_LISTING_PHOTOS) {
+      throw new Error(`Envie ao menos ${MIN_LISTING_PHOTOS} fotos da unidade.`);
     }
     if (!draft.videoAssetId) {
       throw new Error('Envie um vídeo da unidade.');
