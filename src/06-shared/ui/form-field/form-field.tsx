@@ -1,4 +1,5 @@
 import { cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react';
+import { cn } from '@shared/lib/cn';
 
 type FormFieldProps = {
   id: string;
@@ -8,6 +9,9 @@ type FormFieldProps = {
   required?: boolean;
   children: ReactElement;
 };
+
+const controlClass =
+  'min-h-11 rounded border border-border-strong bg-surface px-3 py-2 transition-[border-color,box-shadow] duration-150 focus-visible:border-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent';
 
 export function FormField({
   id,
@@ -24,25 +28,21 @@ export function FormField({
 
   let control: ReactNode = children;
   if (isValidElement(children)) {
+    const childProps = children.props as { className?: string };
     control = cloneElement(children as ReactElement<Record<string, unknown>>, {
       id,
       'aria-describedby': describedBy,
       'aria-invalid': invalid || undefined,
-      className: [
-        (children.props as { className?: string }).className,
-        invalid ? 'form-field__control--invalid' : '',
-      ]
-        .filter(Boolean)
-        .join(' '),
+      className: cn(controlClass, invalid && 'border-danger', childProps.className),
     });
   }
 
   return (
-    <div className={`form-field${invalid ? ' form-field--invalid' : ''}`}>
-      <label htmlFor={id}>
+    <div className={cn('mb-4 flex flex-col gap-2', invalid && 'animate-shake')}>
+      <label htmlFor={id} className="text-[0.925rem] font-semibold">
         {label}
         {required ? (
-          <span className="form-field__required" aria-hidden="true">
+          <span className="text-danger" aria-hidden="true">
             {' '}
             *
           </span>
@@ -50,12 +50,12 @@ export function FormField({
       </label>
       {control}
       {hint ? (
-        <p id={hintId} className="form-hint">
+        <p id={hintId} className="m-0 text-[0.85rem] text-muted">
           {hint}
         </p>
       ) : null}
       {error ? (
-        <p id={errorId} className="form-error" role="alert">
+        <p id={errorId} className="m-0 text-[0.875rem] font-semibold text-danger" role="alert">
           {error}
         </p>
       ) : null}
