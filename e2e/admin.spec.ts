@@ -85,7 +85,9 @@ test.describe('users admin', () => {
     await signIn(page, BACKOFFICE);
     await page.goto('/admin/usuarios');
     await expect(page.getByRole('heading', { name: 'Usuários' })).toBeVisible();
-    await expect(page.getByRole('list', { name: 'Usuários' })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByLabel('Buscar conta')).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole('list', { name: 'Usuários' })).toBeVisible();
+    await expect(page.getByRole('group', { name: 'Filtrar por status' })).toBeVisible();
   });
 
   test('a backoffice account cannot change groups', async ({ page }) => {
