@@ -92,6 +92,7 @@ export function ListingMediaGallery({ media, title }: ListingMediaGalleryProps) 
             src={activeSlide?.url}
             alt={`${title} — ${activeSlide?.label ?? 'foto'}`}
             loading="eager"
+            key={activeSlide?.url}
           />
         )}
 
