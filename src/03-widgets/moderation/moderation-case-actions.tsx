@@ -7,6 +7,10 @@ import { ESealType } from '@entities/seal/model';
 import { verificationApi } from '@features/verification/api/verification-api';
 import { listingsApi } from '@features/listings/api/listings-api';
 import { FeedbackBanner } from '@shared/ui/feedback-banner/feedback-banner';
+import { Button } from '@shared/ui/button/button';
+import { cn } from '@shared/lib/cn';
+import { listingIsBlockedFromPublish } from '@features/listings/lib/listing-shipping';
+import type { IOpsFeedback } from './use-moderation-page';
 import {
   draftsToRequiredChanges,
   useModerationChangeDrafts,
@@ -20,9 +24,10 @@ type ModerationCaseActionsProps = {
   busy: boolean;
   canOperate: boolean;
   moderatorId: string;
-  opsMessage: string | null;
+  hasPhotoEvidence: boolean;
+  opsFeedback: IOpsFeedback | null;
   onRunAction: (action: () => Promise<unknown>) => Promise<void>;
-  ensureInReview: (caseId: string, status: EVerificationCaseStatus) => Promise<void>;
+  ensureInReview: (caseId: string, status: string) => Promise<void>;
 };
 
 export function ModerationCaseActions({
@@ -33,7 +38,8 @@ export function ModerationCaseActions({
   busy,
   canOperate,
   moderatorId,
-  opsMessage,
+  hasPhotoEvidence,
+  opsFeedback,
   onRunAction,
   ensureInReview,
 }: ModerationCaseActionsProps) {
@@ -50,20 +56,31 @@ export function ModerationCaseActions({
     selected.status === EVerificationCaseStatus.APPROVED ||
     selected.status === EVerificationCaseStatus.REJECTED ||
     selected.status === EVerificationCaseStatus.CHANGES_REQUESTED;
+  const publishBlockedByPackage = listingIsBlockedFromPublish(listing);
+  const canAssign = canOperate && selected.status !== EVerificationCaseStatus.IN_REVIEW && hasPhotoEvidence;
+  const canApprove =
+    canOperate && selected.status !== EVerificationCaseStatus.APPROVED && hasPhotoEvidence;
+  const canPublish =
+    canOperate &&
+    !isTerminalListing &&
+    !publishBlockedByPackage &&
+    (listing?.status === EListingStatus.SUBMITTED ||
+      selected.status === EVerificationCaseStatus.APPROVED);
 
   return (
-    <section className="moderation-card moderation-card--actions" aria-labelledby="actions-heading">
+    <section className="mt-6 rounded-lg border border-border bg-surface p-4 [&_h3]:m-0 [&_h3]:font-display" aria-labelledby="actions-heading">
       <h3 id="actions-heading">Decisão</h3>
 
       {!canOperate ? (
-        <p className="moderation-card__warn" role="status">
+        <p className="mb-4 rounded bg-[#fff4e5] p-3 font-semibold text-warning" role="status">
           Sua conta não está no grupo backoffice — estas ações voltam 403 no servidor.
         </p>
       ) : null}
 
-      <label className="form-field">
+      <label className="mb-4 flex flex-col gap-2">
         Resumo da decisão
         <textarea
+          className="min-h-24 rounded border border-border-strong bg-surface px-3 py-2 focus-ring"
           value={reason}
           onChange={(event) => onReasonChange(event.target.value)}
           rows={3}
@@ -72,43 +89,49 @@ export function ModerationCaseActions({
       </label>
 
       {!isClosedCase ? (
-        <fieldset className="moderation-changes">
-          <legend className="moderation-changes__legend">Solicitar ajustes por item</legend>
-          <p className="moderation-changes__lead">
+        <fieldset className="mb-4 border-0 p-0 m-0">
+          <legend className="mb-2 font-semibold">Solicitar ajustes por item</legend>
+          <p className="mb-3 text-[0.9rem] text-muted">
             Marque fotos, vídeo ou descrição e escreva o motivo de cada um. Sugestões da IA podem
             vir pré-marcadas — confirme antes de enviar.
           </p>
           {drafts.length === 0 ? (
-            <p className="moderation-changes__empty">Sem itens do anúncio para solicitar ajuste.</p>
+            <p className="text-muted">Sem itens do anúncio para solicitar ajuste.</p>
           ) : (
-            <div className="moderation-changes__list" role="group" aria-label="Itens do anúncio">
+            <div className="grid gap-3" role="group" aria-label="Itens do anúncio">
               {drafts.map((draft) => {
                 const reasonId = `change-reason-${draft.key.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
                 return (
                   <div
                     key={draft.key}
-                    className={`moderation-changes__row${draft.selected ? ' is-selected' : ''}`}
+                    className={cn(
+                      'rounded border border-border p-3',
+                      draft.selected && 'border-accent bg-accent-soft',
+                    )}
                   >
-                    <label className="moderation-changes__check">
+                    <label className="flex items-start gap-3">
                       <input
                         type="checkbox"
+                        className="mt-1"
                         checked={draft.selected}
                         onChange={() => toggleDraft(draft.key)}
                         disabled={busy || !canOperate}
                       />
-                      <span className="moderation-changes__label">{draft.label}</span>
+                      <span className="font-semibold">{draft.label}</span>
                       {draft.suggestedByAi ? (
-                        <span className="moderation-changes__ai">Sugestão da IA</span>
+                        <span className="rounded bg-surface-muted px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide text-muted">
+                          Sugestão da IA
+                        </span>
                       ) : null}
                     </label>
                     {draft.selected ? (
-                      <div className="moderation-changes__reason-wrap">
-                        <label className="moderation-changes__reason-label" htmlFor={reasonId}>
+                      <div className="mt-3 grid gap-2">
+                        <label className="text-[0.85rem] font-semibold" htmlFor={reasonId}>
                           Motivo para {draft.label}
                         </label>
                         <textarea
                           id={reasonId}
-                          className="moderation-changes__reason"
+                          className="min-h-16 rounded border border-border-strong bg-surface px-3 py-2 focus-ring"
                           rows={2}
                           value={draft.reason}
                           placeholder="Explique o que o vendedor precisa corrigir neste item"
@@ -123,26 +146,24 @@ export function ModerationCaseActions({
             </div>
           )}
           {requiredChanges ? (
-            <p className="moderation-changes__count" role="status">
+            <p className="text-sm font-semibold" role="status">
               {requiredChanges.length}{' '}
               {requiredChanges.length === 1 ? 'item pronto' : 'itens prontos'} para solicitar
               alteração
             </p>
           ) : drafts.some((draft) => draft.selected) ? (
-            <p className="moderation-changes__count moderation-changes__count--warn" role="status">
+            <p className="text-sm font-semibold text-warning" role="status">
               Informe o motivo de cada item marcado
             </p>
           ) : null}
         </fieldset>
       ) : null}
 
-      <div className="moderation-actions">
-        <button
+      <div className="mt-4 flex flex-wrap gap-3">
+        <Button
           type="button"
-          className="gt-button gt-button--ghost"
-          disabled={
-            busy || !canOperate || selected.status === EVerificationCaseStatus.IN_REVIEW
-          }
+          variant="ghost"
+          disabled={busy || !canAssign}
           onClick={() =>
             void onRunAction(() =>
               verificationApi.assignVerificationCase(selected.id, moderatorId),
@@ -150,13 +171,10 @@ export function ModerationCaseActions({
           }
         >
           Atribuir a mim
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
-          className="gt-button"
-          disabled={
-            busy || !canOperate || selected.status === EVerificationCaseStatus.APPROVED
-          }
+          disabled={busy || !canApprove}
           onClick={() =>
             void onRunAction(async () => {
               await ensureInReview(selected.id, selected.status);
@@ -168,10 +186,10 @@ export function ModerationCaseActions({
           }
         >
           Aprovar e conceder selo
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
-          className="gt-button gt-button--ghost"
+          variant="ghost"
           disabled={busy || !canOperate || !canRequestChanges || isClosedCase}
           onClick={() =>
             void onRunAction(async () => {
@@ -187,20 +205,19 @@ export function ModerationCaseActions({
           }
         >
           Solicitar alterações
-        </button>
+        </Button>
         {!confirmReject ? (
-          <button
+          <Button
             type="button"
-            className="gt-button gt-button--ghost"
+            variant="ghost"
             disabled={busy || !canOperate || !reason.trim() || isClosedCase}
             onClick={() => setConfirmReject(true)}
           >
             Rejeitar definitivamente
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
             type="button"
-            className="gt-button"
             disabled={busy || !canOperate || !reason.trim()}
             onClick={() =>
               void onRunAction(async () => {
@@ -211,52 +228,68 @@ export function ModerationCaseActions({
             }
           >
             Confirmar rejeição definitiva
-          </button>
+          </Button>
         )}
         {(listing?.status === EListingStatus.SUBMITTED ||
           selected.status === EVerificationCaseStatus.APPROVED) &&
         !isTerminalListing ? (
-          <button
+          <Button
             type="button"
-            className="gt-button gt-button--ghost"
-            disabled={busy || !canOperate}
+            variant="ghost"
+            disabled={busy || !canPublish}
             onClick={() =>
               void onRunAction(() => listingsApi.publishListing(selected.listingId))
             }
           >
             Publicar anúncio
-          </button>
+          </Button>
         ) : null}
         {listing?.status === EListingStatus.PUBLISHED ? (
-          <button
+          <Button
             type="button"
-            className="gt-button gt-button--ghost"
+            variant="ghost"
             disabled={busy || !canOperate}
             onClick={() =>
               void onRunAction(() => listingsApi.pauseListing(selected.listingId))
             }
           >
             Pausar anúncio
-          </button>
+          </Button>
         ) : null}
       </div>
 
       {confirmReject ? (
-        <p className="moderation-card__warn" role="status">
+        <p className="mb-4 rounded bg-[#fff4e5] p-3 font-semibold text-warning" role="status">
           Rejeição definitiva encerra o anúncio — o vendedor não poderá reenviar.
         </p>
       ) : null}
 
-      {opsMessage ? (
+      {!hasPhotoEvidence ? (
+        <p className="mb-4 rounded bg-[#fff4e5] p-3 font-semibold text-warning" role="status">
+          Atribuir e aprovar exigem evidência PHOTO no caso. As fotos públicas do anúncio
+          não substituem o registro de evidência com o código de posse visível.
+        </p>
+      ) : null}
+
+      {publishBlockedByPackage ? (
+        <p className="mb-4 rounded bg-[#fff4e5] p-3 font-semibold text-warning" role="status">
+          Não dá para publicar: o vendedor marcou envio por transportadora sem peso e
+          medidas da embalagem. Peça esse ajuste — publicar agora é recusado pelo servidor.
+        </p>
+      ) : null}
+
+      {opsFeedback ? (
         <FeedbackBanner
-          variant={opsMessage.toLowerCase().includes('falh') ? 'error' : 'success'}
-          title={opsMessage.toLowerCase().includes('falh') ? 'Não foi possível concluir' : 'Ação concluída'}
-          message={opsMessage}
+          variant={opsFeedback.variant}
+          title={
+            opsFeedback.variant === 'error' ? 'Não foi possível concluir' : 'Ação concluída'
+          }
+          message={opsFeedback.message}
         />
       ) : null}
 
       {selected.decisionReason ? (
-        <p className="moderation-card__note">
+        <p className="mt-3 mb-0 text-[0.9rem] text-muted">
           Último motivo registrado: {selected.decisionReason}
         </p>
       ) : null}
