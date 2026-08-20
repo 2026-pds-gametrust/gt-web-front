@@ -36,7 +36,7 @@ export function OfferRail({
           </Link>
         ) : null}
       </div>
-      <div className="offer-rail__track">
+      <div className="offer-rail__track gt-stagger">
         {offers.map((doc) => (
           <div key={doc.id} className="offer-rail__item">
             <OfferCard document={doc} reason={getReason?.(doc)} />
