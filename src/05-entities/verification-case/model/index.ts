@@ -37,3 +37,5 @@ export type INewVerificationCase = {
   listingId: string;
   checklist?: Record<string, unknown>;
 };
+
+export type { IProofCode } from './proof-code';
