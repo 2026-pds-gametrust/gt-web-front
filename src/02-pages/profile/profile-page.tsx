@@ -3,6 +3,7 @@ import { AppShell } from '@widgets/app-shell/app-shell';
 import { FormField } from '@shared/ui/form-field/form-field';
 import { FeedbackBanner } from '@shared/ui/feedback-banner/feedback-banner';
 import { Button } from '@shared/ui/button/button';
+import { PageHero } from '@shared/ui/page-hero/page-hero';
 import { identityApi } from '@features/identity/api/identity-api';
 import { trustApi } from '@features/trust-display/api/trust-api';
 import { useAuthStore } from '@features/auth/model/use-auth-store';
@@ -10,6 +11,7 @@ import type { IProfile } from '@entities/profile/model';
 import type { IUser } from '@entities/user/model';
 import type { ITrustDisplay } from '@entities/trust-score/model';
 import { TrustScoreSummary } from '@entities/trust-score/ui/trust-score-summary';
+import { Skeleton } from '@shared/ui/skeleton/skeleton';
 
 export function ProfilePage() {
   // Identity comes from the session (JWT `sub`). The route guard guarantees it.
@@ -87,12 +89,11 @@ export function ProfilePage() {
 
   return (
     <AppShell>
-      <section className="page-hero" aria-labelledby="profile-heading">
-        <h1 id="profile-heading">Perfil</h1>
+      <PageHero titleId="profile-heading" title="Perfil">
         <p>Dados públicos e confiança do vendedor — sem selos inventados.</p>
-      </section>
+      </PageHero>
 
-      {loading ? <p className="home-status">Carregando perfil…</p> : null}
+      {loading ? <Skeleton label="Carregando perfil…" /> : null}
 
       {!loading && !profile ? (
         <p role="alert">Perfil não encontrado para o usuário de desenvolvimento.</p>
