@@ -21,6 +21,7 @@ export type INewEvidenceItem = {
   id: string;
   type: EEvidenceType;
   storageKey: string;
+  assetId?: string;
   contentHash?: string;
   label?: string;
 };
