@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { HomePage } from './home-page';
-import { ServerErrorPage } from '@pages/error/server-error-page';
 import { installHttpStub, type IHttpStub } from '@shared/lib/testing/http-stub';
 import { aSearchDocument } from '@shared/lib/testing/fixtures';
 
@@ -31,17 +31,6 @@ const PLAIN = aSearchDocument({
 
 let stub: IHttpStub;
 
-function renderHome() {
-  return render(
-    <MemoryRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/erro" element={<ServerErrorPage />} />
-      </Routes>
-    </MemoryRouter>,
-  );
-}
-
 describe('HomePage', () => {
   beforeEach(() => {
     stub = installHttpStub();
@@ -67,14 +56,13 @@ describe('HomePage', () => {
     expect(await screen.findByRole('navigation', { name: 'Departamentos' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Placas de Vídeo' })).toBeInTheDocument();
 
-    // The verified rail only holds documents that carry granted seals.
     const verifiedRail = screen
       .getByRole('heading', { name: /Ofertas com verificação concluída/i })
       .closest('section');
     expect(verifiedRail).toHaveTextContent('com selo');
     expect(verifiedRail).not.toHaveTextContent('MSI Ventus');
 
-    expect(screen.getByRole('link', { name: 'Vender' })).toHaveAttribute('href', '/vender');
+    expect(screen.getByRole('link', { name: 'Começar a vender' })).toHaveAttribute('href', '/vender');
   });
 
   it('hides the verified rail when nothing carries a seal', async () => {
@@ -95,16 +83,75 @@ describe('HomePage', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('redirects to the server error scene when search is down', async () => {
+  it('shows card skeleton while loading then resolves', async () => {
+    stub.setRoutes({
+      'GET /categories': [200, CATEGORIES],
+      'GET /search': [200, [PLAIN]],
+    });
+
+    render(
+      <MemoryRouter>
+        <HomePage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText(/Carregando vitrine/i)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Em destaque agora/i })).toBeInTheDocument();
+  });
+
+  it('shows FeedbackBanner with retry on feed error without leaving home', async () => {
     stub.setRoutes({
       'GET /categories': [200, CATEGORIES],
       'GET /search': [500, { error: 'boom' }],
     });
 
-    renderHome();
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <HomePage />
+      </MemoryRouter>,
+    );
 
-    expect(await screen.findByRole('heading', { name: /frame drop/i })).toBeInTheDocument();
+    expect(await screen.findByRole('alert')).toHaveTextContent(/vitrine/i);
     expect(screen.getByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Tecnologia usada/i })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: /Em destaque agora/i })).not.toBeInTheDocument();
   });
+
+  it('retries feed load from the error banner', async () => {
+    stub.setRoutes({
+      'GET /categories': [200, CATEGORIES],
+      'GET /search': [500, { error: 'boom' }],
+    });
+
+    render(
+      <MemoryRouter>
+        <HomePage />
+      </MemoryRouter>,
+    );
+
+    await screen.findByRole('alert');
+    stub.setRoutes({
+      'GET /categories': [200, CATEGORIES],
+      'GET /search': [200, [PLAIN]],
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Tentar de novo' }));
+    expect(await screen.findByRole('heading', { name: /Em destaque agora/i })).toBeInTheDocument();
+  });
+
+  it('shows empty state when search returns no offers', async () => {
+    stub.setRoutes({
+      'GET /categories': [200, CATEGORIES],
+      'GET /search': [200, []],
+    });
+
+    render(
+      <MemoryRouter>
+        <HomePage />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByRole('heading', { name: /Nenhuma oferta na vitrine/i })).toBeInTheDocument();
+  });
 });
+
