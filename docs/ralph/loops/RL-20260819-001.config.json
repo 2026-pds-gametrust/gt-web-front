@@ -1,0 +1,14 @@
+{
+  "e2ePattern": "a11y-offercard",
+  "a11yFile": "e2e/ralph/a11y-offercard.spec.ts",
+  "visualFile": "e2e/ralph/visual-offercard.spec.ts",
+  "allowlist": [
+    "src/03-widgets/offer-card/**",
+    "e2e/ralph/a11y-offercard.spec.ts",
+    "e2e/ralph/visual-offercard.spec.ts",
+    "docs/specs/ralph-offer-card/**",
+    "docs/ralph/loops/RL-20260819-001.*",
+    "artifacts/ralph/RL-20260819-001/**"
+  ],
+  "coverageRiskAccepted": true
+}
