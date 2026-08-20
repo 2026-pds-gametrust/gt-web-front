@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 export function TrustStrip() {
   return (
-    <section className="trust-strip trust-strip--compact" aria-labelledby="trust-strip-heading">
+    <section className="trust-strip trust-strip--compact gt-fade-up" aria-labelledby="trust-strip-heading">
       <h2 id="trust-strip-heading">Confiança com evidência</h2>
       <ul className="trust-strip__list">
         <li>
