@@ -12,6 +12,7 @@ import {
   firstRevisionStep,
   isRevisionComplete,
 } from '../lib/revision-validation';
+import { movePhoto as movePhotoIds, reorderPhotos as reorderPhotoIds } from '../lib/reorder-photos';
 
 export const ESellStep = {
   IDENTIFY: 1,
@@ -33,6 +34,30 @@ export const ESellStatus = {
 
 export type ESellStatus = (typeof ESellStatus)[keyof typeof ESellStatus];
 
+function isBlobUrl(url: string): boolean {
+  return url.startsWith('blob:');
+}
+
+function revokePreviewUrl(url: string | null | undefined): void {
+  if (url && isBlobUrl(url)) {
+    URL.revokeObjectURL(url);
+  }
+}
+
+function revokePreviewMap(previews: Record<string, string>): void {
+  Object.values(previews).forEach(revokePreviewUrl);
+}
+
+async function previewUrlForAsset(assetId: string, localUrl?: string): Promise<string> {
+  if (localUrl) return localUrl;
+  try {
+    const grant = await mediaApi.getContentGrant(assetId);
+    return grant.url;
+  } catch {
+    return '';
+  }
+}
+
 type SellState = {
   step: ESellStep;
   status: ESellStatus;
@@ -45,7 +70,9 @@ type SellState = {
   priceCents: number;
   evidenceIds: string[];
   photoAssetIds: string[];
+  photoPreviews: Record<string, string>;
   videoAssetId: string | null;
+  videoPreview: string | null;
   shippingModes: string[];
   uploading: boolean;
   uploadStatus: string | null;
@@ -64,9 +91,13 @@ type SellState = {
   setAccessories: (value: string) => void;
   setPriceCents: (value: number) => void;
   toggleEvidence: (id: string) => void;
+  addPhotos: (files: File[]) => Promise<void>;
   addPhoto: (file: File) => Promise<void>;
   removePhoto: (assetId: string) => void;
+  reorderPhotos: (fromIndex: number, toIndex: number) => void;
+  movePhoto: (assetId: string, direction: 'up' | 'down') => void;
   setVideo: (file: File) => Promise<void>;
+  clearVideo: () => void;
   toggleShippingMode: (mode: string) => void;
   submit: () => Promise<void>;
   resubmitRevision: () => Promise<void>;
@@ -84,7 +115,9 @@ const initialDraft = {
   priceCents: 0,
   evidenceIds: [] as string[],
   photoAssetIds: [] as string[],
+  photoPreviews: {} as Record<string, string>,
   videoAssetId: null as string | null,
+  videoPreview: null as string | null,
   shippingModes: [] as string[],
   uploading: false,
   uploadStatus: null as string | null,
@@ -131,6 +164,17 @@ export const useSellStore = create<SellState>((set, get) => ({
         accessories: '',
       });
 
+      const photoAssetIds = sellerListing.media.assetIds ?? [];
+      const videoAssetId = sellerListing.media.videoAssetId ?? null;
+      const photoPreviews: Record<string, string> = {};
+      await Promise.all(
+        photoAssetIds.map(async (id) => {
+          const url = await previewUrlForAsset(id);
+          if (url) photoPreviews[id] = url;
+        }),
+      );
+      const videoPreview = videoAssetId ? await previewUrlForAsset(videoAssetId) : null;
+
       set({
         loading: false,
         revisionListingId: listingId,
@@ -143,8 +187,10 @@ export const useSellStore = create<SellState>((set, get) => ({
         defects,
         accessories: '',
         priceCents: sellerListing.priceCents,
-        photoAssetIds: sellerListing.media.assetIds ?? [],
-        videoAssetId: sellerListing.media.videoAssetId ?? null,
+        photoAssetIds,
+        photoPreviews,
+        videoAssetId,
+        videoPreview: videoPreview || null,
         shippingModes: sellerListing.shipping.modes,
         step: firstRevisionStep(verification.requiredChanges) as ESellStep,
       });
@@ -232,10 +278,17 @@ export const useSellStore = create<SellState>((set, get) => ({
     });
   },
 
+  addPhotos: async (files) => {
+    for (const file of files) {
+      await get().addPhoto(file);
+      if (get().error) break;
+    }
+  },
+
   addPhoto: async (file) => {
+    const localPreview = URL.createObjectURL(file);
     set({ uploading: true, error: null, uploadStatus: 'Enviando foto…' });
     try {
-      // Resolves only when the asset is READY: an UPLOADED asset cannot be attached.
       const asset = await mediaApi.uploadAsset({
         file,
         purpose: EMediaPurpose.LISTING,
@@ -244,10 +297,12 @@ export const useSellStore = create<SellState>((set, get) => ({
       });
       set({
         photoAssetIds: [...get().photoAssetIds, asset.id],
+        photoPreviews: { ...get().photoPreviews, [asset.id]: localPreview },
         uploading: false,
         uploadStatus: null,
       });
     } catch (error) {
+      revokePreviewUrl(localPreview);
       set({
         uploading: false,
         uploadStatus: null,
@@ -256,10 +311,26 @@ export const useSellStore = create<SellState>((set, get) => ({
     }
   },
 
-  removePhoto: (assetId) =>
-    set({ photoAssetIds: get().photoAssetIds.filter((id) => id !== assetId) }),
+  removePhoto: (assetId) => {
+    revokePreviewUrl(get().photoPreviews[assetId]);
+    const photoPreviews = { ...get().photoPreviews };
+    delete photoPreviews[assetId];
+    set({
+      photoAssetIds: get().photoAssetIds.filter((id) => id !== assetId),
+      photoPreviews,
+    });
+  },
+
+  reorderPhotos: (fromIndex, toIndex) => {
+    set({ photoAssetIds: reorderPhotoIds(get().photoAssetIds, fromIndex, toIndex) });
+  },
+
+  movePhoto: (assetId, direction) => {
+    set({ photoAssetIds: movePhotoIds(get().photoAssetIds, assetId, direction) });
+  },
 
   setVideo: async (file) => {
+    const localPreview = URL.createObjectURL(file);
     set({ uploading: true, error: null, uploadStatus: 'Enviando vídeo…' });
     try {
       const asset = await mediaApi.uploadAsset({
@@ -268,14 +339,26 @@ export const useSellStore = create<SellState>((set, get) => ({
         onStatusChange: (current) =>
           set({ uploadStatus: `Vídeo: ${current.status.toLowerCase()}` }),
       });
-      set({ videoAssetId: asset.id, uploading: false, uploadStatus: null });
+      revokePreviewUrl(get().videoPreview);
+      set({
+        videoAssetId: asset.id,
+        videoPreview: localPreview,
+        uploading: false,
+        uploadStatus: null,
+      });
     } catch (error) {
+      revokePreviewUrl(localPreview);
       set({
         uploading: false,
         uploadStatus: null,
         error: error instanceof Error ? error.message : 'Falha ao enviar o vídeo.',
       });
     }
+  },
+
+  clearVideo: () => {
+    revokePreviewUrl(get().videoPreview);
+    set({ videoAssetId: null, videoPreview: null });
   },
 
   toggleShippingMode: (mode) => {
@@ -328,5 +411,9 @@ export const useSellStore = create<SellState>((set, get) => ({
     }
   },
 
-  reset: () => set({ ...initialDraft }),
+  reset: () => {
+    revokePreviewMap(get().photoPreviews);
+    revokePreviewUrl(get().videoPreview);
+    set({ ...initialDraft });
+  },
 }));
