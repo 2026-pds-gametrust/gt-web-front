@@ -35,3 +35,55 @@
   --gt-shadow-lift: 0 10px 28px rgba(24, 24, 24, 0.12);
   --gt-max: 1280px;
 }
+
+@theme {
+  --color-canvas: var(--gt-bg);
+  --color-surface: var(--gt-surface);
+  --color-surface-muted: var(--gt-surface-muted);
+  --color-border: var(--gt-border);
+  --color-border-strong: var(--gt-border-strong);
+  --color-ink: var(--gt-text);
+  --color-muted: var(--gt-muted);
+  --color-accent: var(--gt-accent);
+  --color-accent-hover: var(--gt-accent-hover);
+  --color-accent-soft: var(--gt-accent-soft);
+  --color-header: var(--gt-header);
+  --color-header-text: var(--gt-header-text);
+  --color-danger: var(--gt-danger);
+  --color-warning: var(--gt-warning);
+  --color-sponsored: var(--gt-sponsored);
+  --color-sponsored-bg: var(--gt-sponsored-bg);
+  --color-seal: var(--gt-seal);
+  --color-seal-bg: var(--gt-seal-bg);
+
+  --font-sans: var(--gt-font);
+  --font-display: var(--gt-font-display);
+
+  --radius-sm: var(--gt-radius-sm);
+  --radius: var(--gt-radius);
+  --radius-lg: var(--gt-radius-lg);
+
+  --shadow-gt: var(--gt-shadow);
+  --shadow-lift: var(--gt-shadow-lift);
+
+  --container-gt: var(--gt-max);
+
+  --breakpoint-panel: 720px;
+  --breakpoint-nav: 760px;
+  --breakpoint-split: 900px;
+  --breakpoint-wide: 960px;
+
+  --animate-fade-up: gt-fade-up 0.4s ease both;
+  --animate-feedback-enter: gt-feedback-enter 0.4s ease both;
+  --animate-shake: gt-shake 0.45s ease;
+  --animate-shimmer: gt-shimmer 1.4s ease infinite;
+  --animate-float: gt-float 2.4s ease-in-out infinite;
+  --animate-scan: gt-scan 2.8s linear infinite;
+  --animate-fan: gt-fan 1.2s linear infinite;
+  --animate-heat: gt-heat 1.6s ease-in-out infinite;
+  --animate-glitch: gt-glitch 3.2s ease-in-out infinite;
+  --animate-badge-pulse: gt-badge-pulse 1.8s ease-out infinite;
+  --animate-bubble-in: gt-bubble-in 0.28s ease both;
+  --animate-check-draw: gt-check-draw 0.45s ease forwards;
+  --animate-spin-gt: gt-spin 0.7s linear infinite;
+}
