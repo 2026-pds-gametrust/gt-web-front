@@ -14,6 +14,8 @@ import { ModerationStatusBadge } from '@widgets/moderation/moderation-status-bad
 import { useModerationPage } from '@widgets/moderation/use-moderation-page';
 import { formatModerationDate, shortId } from '@widgets/moderation/moderation-constants';
 import { useAuthStore } from '@features/auth/model/use-auth-store';
+import { PageHero } from '@shared/ui/page-hero/page-hero';
+import { Skeleton } from '@shared/ui/skeleton/skeleton';
 
 export function ModerationPage() {
   const sessionUser = useAuthStore((s) => s.user);
@@ -31,6 +33,7 @@ export function ModerationPage() {
     offset,
     setOffset,
     evidence,
+    proofCode,
     listing,
     seller,
     profile,
@@ -56,15 +59,12 @@ export function ModerationPage() {
 
   return (
     <AppShell>
-      <section className="page-hero moderation-hero" aria-labelledby="moderation-heading">
-        <div>
-          <h1 id="moderation-heading">Moderação</h1>
-          <p className="lead">
-            Fila de verificação — analise mídia, vendedor e anúncio antes de conceder selo.
-            Aprovar exige evidência; rejeitar exige motivo.
-          </p>
-        </div>
-      </section>
+      <PageHero titleId="moderation-heading" title="Moderação" className="moderation-hero">
+        <p className="lead">
+          Fila de verificação — analise mídia, vendedor e anúncio antes de conceder selo.
+          Aprovar exige evidência; rejeitar exige motivo.
+        </p>
+      </PageHero>
 
       {!loading ? (
         <ModerationStatsBar
@@ -81,7 +81,7 @@ export function ModerationPage() {
         />
       ) : null}
 
-      {loading ? <p className="home-status">Carregando casos…</p> : null}
+      {loading ? <Skeleton label="Carregando casos…" /> : null}
 
       <div className="moderation-layout">
         {!loading ? (
@@ -153,6 +153,18 @@ export function ModerationPage() {
               </div>
 
               <ModerationAnalysisCard selected={selected} />
+
+              {proofCode ? (
+                <section className="moderation-card proof-code-card moderation-proof-code" aria-labelledby="mod-proof-code">
+                  <h3 id="mod-proof-code">Código de posse esperado</h3>
+                  <p className="proof-code-card__value" aria-label="Código esperado">
+                    {proofCode.code}
+                  </p>
+                  <p className="moderation-card__note">
+                    Confirme que este código aparece legível nas evidências, junto ao produto.
+                  </p>
+                </section>
+              ) : null}
 
               <ModerationMediaGallery listing={listing} evidence={evidence} />
 
