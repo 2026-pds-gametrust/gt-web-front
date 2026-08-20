@@ -100,8 +100,8 @@ export function ProfilePage() {
       ) : null}
 
       {profile ? (
-        <div className="profile-layout">
-          <form className="profile-form" onSubmit={onSave}>
+        <div className="grid gap-8 wide:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] wide:items-start">
+          <form className="rounded-lg border border-border bg-surface p-6" onSubmit={onSave}>
             <FormField id="profile-display-name" label="Nome de exibição">
               <input
                 value={displayName}
@@ -121,7 +121,7 @@ export function ProfilePage() {
                 placeholder="00000000"
               />
             </FormField>
-            <div className="wizard-actions">
+            <div className="mt-6 flex flex-wrap gap-3">
               <Button
                 type="button"
                 variant="ghost"
@@ -151,9 +151,9 @@ export function ProfilePage() {
             ) : null}
           </form>
 
-          <aside className="profile-aside" aria-label="Conta e confiança">
+          <aside className="rounded-lg border border-border bg-surface p-6" aria-label="Conta e confiança">
             {user ? (
-              <dl className="profile-meta">
+              <dl className="m-0 grid gap-3 [&_dd]:m-0 [&_dt]:text-[0.85rem] [&_dt]:font-semibold [&_dt]:text-muted">
                 <div>
                   <dt>Nome</dt>
                   <dd>{user.fullName}</dd>
@@ -176,7 +176,7 @@ export function ProfilePage() {
             {trust ? (
               <TrustScoreSummary trust={trust} />
             ) : (
-              <p className="trust-reasons trust-reasons--empty">
+              <p className="m-0 text-[0.875rem] text-muted">
                 Ainda sem TrustScore como vendedor.
               </p>
             )}
