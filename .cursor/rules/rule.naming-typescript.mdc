@@ -1,0 +1,15 @@
+---
+description: Naming TypeScript / React
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Naming TypeScript
+
+- Interfaces de domínio: `I` + PascalCase (`IUser`, `IOffer`)
+- Enums de domínio: `E` + PascalCase (`ETrustLevel`)
+- Arquivos: `kebab-case.ts(x)`
+- Componentes React exportados: PascalCase
+- Constantes globais: `UPPER_SNAKE_CASE`
+- Unit: `*.test.ts(x)` co-localizado; integração: `__tests__/*.spec.ts(x)`
+- Ver `ARCHITECTURE.md`
