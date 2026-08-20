@@ -1,57 +1,16 @@
 import type { IModerationQueueItem } from '@entities/moderation-queue/model';
+import { cn } from '@shared/lib/cn';
 import { ModerationScoreBadge } from './moderation-score-badge';
 import { CHECKLIST_ITEM_LABEL, formatModerationDate } from './moderation-constants';
-
-export type IModerationAiAnalysis = {
-  analysisId: string;
-  score: number;
-  items: Array<{
-    id: string;
-    status: string;
-    weight: number;
-    reason: string;
-    evidenceRef?: string;
-  }>;
-  modelId?: string;
-  promptVersion: string;
-  analyzedAt: string;
-};
-
-export function parseModerationAiAnalysis(
-  item: Pick<IModerationQueueItem, 'checklist' | 'aiAnalysisScore'> | null | undefined,
-): IModerationAiAnalysis | null {
-  if (!item) return null;
-
-  const raw = item.checklist?.aiAnalysis;
-  if (!raw || typeof raw !== 'object') {
-    if (item.aiAnalysisScore === undefined) return null;
-    return {
-      analysisId: 'unknown',
-      score: item.aiAnalysisScore,
-      items: [],
-      promptVersion: 'v1',
-      analyzedAt: '',
-    };
-  }
-
-  const analysis = raw as Partial<IModerationAiAnalysis>;
-  if (typeof analysis.score !== 'number') return null;
-
-  return {
-    analysisId: String(analysis.analysisId ?? 'unknown'),
-    score: analysis.score,
-    items: Array.isArray(analysis.items) ? analysis.items : [],
-    modelId: analysis.modelId,
-    promptVersion: String(analysis.promptVersion ?? 'v1'),
-    analyzedAt: String(analysis.analyzedAt ?? ''),
-  };
-}
+import { parseModerationAiAnalysis } from './moderation-ai-analysis';
 
 const STATUS_LABEL: Record<string, string> = {
   PASS: 'OK',
   FAIL: 'Falha',
   UNCERTAIN: 'Incerto',
 };
+
+const MOD_CARD = 'rounded-lg border border-border bg-surface p-4';
 
 type ModerationAnalysisCardProps = {
   selected: IModerationQueueItem | null;
@@ -61,19 +20,22 @@ export function ModerationAnalysisCard({ selected }: ModerationAnalysisCardProps
   const analysis = parseModerationAiAnalysis(selected);
 
   return (
-    <section className="moderation-card moderation-card--analysis" aria-labelledby="analysis-heading">
-      <div className="moderation-card__header">
+    <section
+      className={cn(MOD_CARD, 'mb-6 [&_h3]:m-0 [&_h3]:font-display')}
+      aria-labelledby="analysis-heading"
+    >
+      <div className="mb-4 flex items-center justify-between gap-3">
         <h3 id="analysis-heading">Validação IA</h3>
         <ModerationScoreBadge score={analysis?.score ?? selected?.aiAnalysisScore} />
       </div>
 
       {!analysis ? (
-        <p className="moderation-card__empty">
+        <p className="m-0 mt-3 text-[0.9rem] text-muted">
           Ainda não há score de validação IA para este caso. A análise roda no submit do anúncio.
         </p>
       ) : (
         <>
-          <p className="moderation-card__note">
+          <p className="m-0 mt-3 text-[0.9rem] text-muted">
             Pontuação explicável — não substitui a decisão humana. Analisado em{' '}
             {analysis.analyzedAt ? formatModerationDate(analysis.analyzedAt) : '—'}
             {analysis.modelId ? (
@@ -85,24 +47,30 @@ export function ModerationAnalysisCard({ selected }: ModerationAnalysisCardProps
           </p>
 
           {analysis.items.length > 0 ? (
-            <ul className="moderation-analysis-list">
+            <ul className="m-0 mt-4 grid list-none gap-3 p-0">
               {analysis.items.map((item) => (
                 <li
                   key={item.id}
-                  className={`moderation-analysis-list__item moderation-analysis-list__item--${item.status.toLowerCase()}`}
+                  className={cn(
+                    'rounded border border-border bg-surface-muted p-3',
+                    item.status === 'FAIL' &&
+                      'border-[color-mix(in_srgb,#c0392b_35%,var(--color-border))]',
+                    item.status === 'PASS' &&
+                      'border-[color-mix(in_srgb,#1e8449_35%,var(--color-border))]',
+                  )}
                 >
-                  <div className="moderation-analysis-list__head">
+                  <div className="mb-2 flex items-center justify-between gap-2">
                     <strong>{CHECKLIST_ITEM_LABEL[item.id] ?? item.id}</strong>
-                    <span className="moderation-analysis-list__status">
+                    <span className="text-[0.75rem] font-bold tracking-wide text-muted uppercase">
                       {STATUS_LABEL[item.status] ?? item.status}
                     </span>
                   </div>
-                  <p>{item.reason}</p>
+                  <p className="m-0 text-[0.92rem] text-ink">{item.reason}</p>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="moderation-card__empty">Checklist indisponível neste snapshot.</p>
+            <p className="m-0 mt-3 text-[0.9rem] text-muted">Checklist indisponível neste snapshot.</p>
           )}
         </>
       )}
