@@ -1,0 +1,14 @@
+---
+description: Acessibilidade web WCAG
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# A11y Web
+
+- Controles interativos: nome acessível (label / `aria-label` / texto visível)
+- Roles corretos; teclado completo; foco visível após navegação/dialog
+- Anunciar erros (live regions quando necessário)
+- Alvo de toque/clique ≥ 44px; feedback não só por cor
+- Selos/TrustScore explicáveis ao leitor de tela
+- Gate: `KB-DEC-002` + persona `baixa-visao` (NVDA/JAWS/VoiceOver Safari + zoom)
