@@ -5,6 +5,7 @@ import type {
   IVerificationCase,
   INewVerificationCase,
   IRequestVerificationChanges,
+  IProofCode,
 } from '@entities/verification-case/model';
 import type {
   IModerationQueuePage,
@@ -59,6 +60,13 @@ export const verificationApi = {
 
   async getVerificationCase(id: string): Promise<IVerificationCase | null> {
     const { data } = await httpClient.get<IVerificationCase>(`/verification-cases/${id}`);
+    return data;
+  },
+
+  async getProofCode(caseId: string): Promise<IProofCode> {
+    const { data } = await httpClient.get<IProofCode>(
+      `/verification-cases/${caseId}/proof-code`,
+    );
     return data;
   },
 
