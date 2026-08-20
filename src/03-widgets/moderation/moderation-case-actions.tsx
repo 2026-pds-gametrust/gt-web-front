@@ -6,6 +6,7 @@ import { EVerificationCaseStatus } from '@entities/verification-case/model';
 import { ESealType } from '@entities/seal/model';
 import { verificationApi } from '@features/verification/api/verification-api';
 import { listingsApi } from '@features/listings/api/listings-api';
+import { FeedbackBanner } from '@shared/ui/feedback-banner/feedback-banner';
 import {
   draftsToRequiredChanges,
   useModerationChangeDrafts,
@@ -72,36 +73,66 @@ export function ModerationCaseActions({
 
       {!isClosedCase ? (
         <fieldset className="moderation-changes">
-          <legend>Solicitar ajustes por item</legend>
-          <p className="moderation-card__note">
-            Selecione fotos, vídeo ou descrição e informe o motivo de cada um. Sugestões da IA
-            podem vir pré-marcadas — confirme antes de enviar.
+          <legend className="moderation-changes__legend">Solicitar ajustes por item</legend>
+          <p className="moderation-changes__lead">
+            Marque fotos, vídeo ou descrição e escreva o motivo de cada um. Sugestões da IA podem
+            vir pré-marcadas — confirme antes de enviar.
           </p>
-          <ul className="moderation-changes__list">
-            {drafts.map((draft) => (
-              <li key={draft.key} className="moderation-changes__item">
-                <label className="moderation-changes__select">
-                  <input
-                    type="checkbox"
-                    checked={draft.selected}
-                    onChange={() => toggleDraft(draft.key)}
-                    disabled={busy || !canOperate}
-                  />
-                  {draft.label}
-                </label>
-                {draft.selected ? (
-                  <textarea
-                    className="moderation-changes__reason"
-                    rows={2}
-                    value={draft.reason}
-                    placeholder="Motivo específico para este item"
-                    onChange={(event) => setDraftReason(draft.key, event.target.value)}
-                    disabled={busy || !canOperate}
-                  />
-                ) : null}
-              </li>
-            ))}
-          </ul>
+          {drafts.length === 0 ? (
+            <p className="moderation-changes__empty">Sem itens do anúncio para solicitar ajuste.</p>
+          ) : (
+            <div className="moderation-changes__list" role="group" aria-label="Itens do anúncio">
+              {drafts.map((draft) => {
+                const reasonId = `change-reason-${draft.key.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
+                return (
+                  <div
+                    key={draft.key}
+                    className={`moderation-changes__row${draft.selected ? ' is-selected' : ''}`}
+                  >
+                    <label className="moderation-changes__check">
+                      <input
+                        type="checkbox"
+                        checked={draft.selected}
+                        onChange={() => toggleDraft(draft.key)}
+                        disabled={busy || !canOperate}
+                      />
+                      <span className="moderation-changes__label">{draft.label}</span>
+                      {draft.suggestedByAi ? (
+                        <span className="moderation-changes__ai">Sugestão da IA</span>
+                      ) : null}
+                    </label>
+                    {draft.selected ? (
+                      <div className="moderation-changes__reason-wrap">
+                        <label className="moderation-changes__reason-label" htmlFor={reasonId}>
+                          Motivo para {draft.label}
+                        </label>
+                        <textarea
+                          id={reasonId}
+                          className="moderation-changes__reason"
+                          rows={2}
+                          value={draft.reason}
+                          placeholder="Explique o que o vendedor precisa corrigir neste item"
+                          onChange={(event) => setDraftReason(draft.key, event.target.value)}
+                          disabled={busy || !canOperate}
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {requiredChanges ? (
+            <p className="moderation-changes__count" role="status">
+              {requiredChanges.length}{' '}
+              {requiredChanges.length === 1 ? 'item pronto' : 'itens prontos'} para solicitar
+              alteração
+            </p>
+          ) : drafts.some((draft) => draft.selected) ? (
+            <p className="moderation-changes__count moderation-changes__count--warn" role="status">
+              Informe o motivo de cada item marcado
+            </p>
+          ) : null}
         </fieldset>
       ) : null}
 
@@ -217,9 +248,11 @@ export function ModerationCaseActions({
       ) : null}
 
       {opsMessage ? (
-        <p className="moderation-card__message" role="alert">
-          {opsMessage}
-        </p>
+        <FeedbackBanner
+          variant={opsMessage.toLowerCase().includes('falh') ? 'error' : 'success'}
+          title={opsMessage.toLowerCase().includes('falh') ? 'Não foi possível concluir' : 'Ação concluída'}
+          message={opsMessage}
+        />
       ) : null}
 
       {selected.decisionReason ? (
