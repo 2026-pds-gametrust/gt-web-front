@@ -35,6 +35,6 @@ export const EVIDENCE_CHECKLIST: IEvidenceChecklistItem[] = [
   {
     id: 'proof-code',
     type: EEvidenceType.PROOF_CODE_HASH,
-    label: 'Código de prova combinado com a verificação',
+    label: 'Código de posse anotado e visível junto ao produto',
   },
 ];
