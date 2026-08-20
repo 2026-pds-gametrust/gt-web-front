@@ -1,27 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { AppShell } from '@widgets/app-shell/app-shell';
 import { CategoryShortcuts } from '@widgets/category-shortcuts/category-shortcuts';
 import { TrustStrip } from '@widgets/trust-strip/trust-strip';
 import { OfferRail } from '@widgets/offer-rail/offer-rail';
 import { SearchBar } from '@widgets/search-bar/search-bar';
-import { FeedbackBanner } from '@shared/ui/feedback-banner/feedback-banner';
-import { Button } from '@shared/ui/button/button';
+import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { searchApi } from '@features/search/api/search-api';
 import type { IHomeFeed } from '@features/search/model/search-types';
-
-function HomeSkeleton() {
-  return (
-    <div className="home-skeleton" aria-hidden="true">
-      <div className="home-skeleton__block" style={{ width: '40%' }} />
-      <div className="home-skeleton__grid">
-        <div className="home-skeleton__card" />
-        <div className="home-skeleton__card" />
-        <div className="home-skeleton__card" />
-      </div>
-    </div>
-  );
-}
 
 export function HomePage() {
   const [feed, setFeed] = useState<IHomeFeed | null>(null);
@@ -46,26 +32,24 @@ export function HomePage() {
     void loadFeed();
   }, [loadFeed]);
 
+  if (!loading && error) {
+    return <Navigate to="/erro" replace state={{ from: '/' }} />;
+  }
+
   return (
     <AppShell>
-      <section className="home-search-panel" aria-label="Busca principal">
+      <section className="home-search-panel gt-fade-up" aria-labelledby="home-search-heading">
+        <h1 id="home-search-heading" className="home-search-panel__title">
+          Tecnologia usada. Confiança renovada.
+        </h1>
+        <p className="home-search-panel__lead">
+          Compare modelos e ofertas com evidência. Selos só aparecem depois da verificação
+          concluída.
+        </p>
         <SearchBar size="hero" />
       </section>
 
-      {loading ? <HomeSkeleton /> : null}
-
-      {error ? (
-        <FeedbackBanner
-          variant="error"
-          title="Vitrine indisponível"
-          message={error}
-          action={
-            <Button type="button" onClick={() => void loadFeed()}>
-              Tentar de novo
-            </Button>
-          }
-        />
-      ) : null}
+      {loading ? <Skeleton label="Carregando vitrine…" /> : null}
 
       {!loading && feed ? (
         <>
@@ -94,7 +78,7 @@ export function HomePage() {
           <TrustStrip />
 
           <section
-            className="seller-entry seller-entry--brand"
+            className="seller-entry seller-entry--brand gt-fade-up"
             aria-labelledby="seller-entry-heading"
           >
             <div>
