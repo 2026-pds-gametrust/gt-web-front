@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AppShell } from '@widgets/app-shell/app-shell';
 import { Button } from '@shared/ui/button/button';
+import { PageHero } from '@shared/ui/page-hero/page-hero';
+import { FeedbackBanner } from '@shared/ui/feedback-banner/feedback-banner';
+import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { identityApi } from '@features/identity/api/identity-api';
 import { useAuthStore } from '@features/auth/model/use-auth-store';
 import { EUserGroup, isAdmin, type IUser } from '@entities/user/model';
@@ -71,12 +74,11 @@ export function UsersAdminPage() {
 
   return (
     <AppShell>
-      <section className="page-hero" aria-labelledby="users-admin-heading">
-        <h1 id="users-admin-heading">Usuários</h1>
+      <PageHero titleId="users-admin-heading" title="Usuários">
         <p className="lead">
-          Grupos, verificação e remoção. Alterar grupos exige a conta estar em <code>admin</code>.
+          Grupos, verificação e reativação. Alterar grupos exige a conta estar em <code>admin</code>.
         </p>
-      </section>
+      </PageHero>
 
       {!canAssignGroups ? (
         <p className="offer-card__meta">
@@ -84,9 +86,13 @@ export function UsersAdminPage() {
         </p>
       ) : null}
 
-      {error ? <p role="alert">{error}</p> : null}
-      {message ? <p className="offer-card__meta">{message}</p> : null}
-      {loading ? <p>Carregando…</p> : null}
+      {error ? (
+        <FeedbackBanner variant="error" title="Não foi possível concluir" message={error} />
+      ) : null}
+      {message ? (
+        <FeedbackBanner variant="success" title="Salvo" message={message} />
+      ) : null}
+      {loading ? <Skeleton label="Carregando usuários…" /> : null}
 
       {!loading ? (
         <ul className="bullet-list" aria-label="Usuários">
