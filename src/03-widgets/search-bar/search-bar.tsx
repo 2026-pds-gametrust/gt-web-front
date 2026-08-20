@@ -10,6 +10,15 @@ type SearchBarProps = {
   size?: 'hero' | 'compact';
 };
 
+function SearchIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+      <path d="M20 20 16.5 16.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function SearchBar({
   initialQuery = '',
   autoFocus = false,
@@ -58,7 +67,7 @@ export function SearchBar({
   }
 
   return (
-    <div className={`search-bar search-bar--${size}`}>
+    <div className={`search-bar search-bar--${size} gt-fade-up`}>
       <form className="search-bar__form" role="search" onSubmit={onSubmit}>
         <label className="visually-hidden" htmlFor={`${listId}-input`}>
           Buscar produtos e ofertas
@@ -102,7 +111,16 @@ export function SearchBar({
             }
           }}
         />
-        <Button type="submit">Buscar</Button>
+        <Button type="submit" className="search-bar__submit">
+          {size === 'compact' ? (
+            <>
+              <SearchIcon />
+              <span className="visually-hidden">Buscar</span>
+            </>
+          ) : (
+            'Buscar'
+          )}
+        </Button>
       </form>
       {open && suggestions.length > 0 ? (
         <ul id={listId} className="search-bar__suggestions" role="listbox">
