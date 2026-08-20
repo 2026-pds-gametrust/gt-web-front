@@ -1,0 +1,15 @@
+---
+description: Processo Ralph Loop de auditoria visual — ledger, gates e completion promise.
+globs: docs/ralph/**,artifacts/ralph/**,scripts/*ralph*,scripts/verify-ralph-loop.mjs,scripts/smoke.mjs,e2e/ralph/**
+alwaysApply: false
+---
+
+# Ralph Visual Loop
+
+1. Um loop = uma superfície verificável (rota, componente ou jornada).
+2. Findings do escopo são corrigidos no mesmo loop ou status `BLOCKED`.
+3. Memória: `docs/ralph/ledger.jsonl` + `docs/ralph/loops/<id>.md` + `artifacts/ralph/<id>/`.
+4. Testes: unit co-localizado, integration `__tests__/*.spec`, E2E `e2e/` — **não** `src/__tests__/`.
+5. Conclusão só com `yarn ralph:verify -- --loop <id>` exit 0 e `agt-web-verifier` PASS.
+6. Quem implementa não é o único revisor/verificador.
+7. Paridade e confiança: `docs/design-system/paridade-visual.md`.
