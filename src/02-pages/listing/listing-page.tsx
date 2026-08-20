@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { AppShell } from '@widgets/app-shell/app-shell';
 import { OfferCard } from '@widgets/offer-card/offer-card';
 import { Button } from '@shared/ui/button/button';
@@ -17,6 +17,9 @@ import { FavoriteToggle } from '@features/favorites/ui/favorite-toggle';
 import { EFavoriteTargetType } from '@entities/favorite/model';
 import { formatMoney } from '@shared/lib/format';
 import { ListingMediaGallery } from '@widgets/listing-media/listing-media-gallery';
+import { EmptyState } from '@shared/ui/empty-state/empty-state';
+import { Skeleton } from '@shared/ui/skeleton/skeleton';
+import { NotFoundPage } from '@pages/error/not-found-page';
 
 const CONDITION_LABELS: Record<string, string> = {
   NEW: 'Novo',
@@ -36,6 +39,7 @@ export function ListingPage() {
   const [similar, setSimilar] = useState<ISearchDocument[]>([]);
   const [activeSeal, setActiveSeal] = useState<ISeal | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,6 +52,7 @@ export function ListingPage() {
 
         if (!item) {
           setListing(null);
+          setError(null);
           return;
         }
 
@@ -71,8 +76,12 @@ export function ListingPage() {
             .map((l) => searchDocumentFromListing(l, prod)),
         );
         setSimilar(similarDocs);
+        setError(null);
       } catch {
-        if (!cancelled) setListing(null);
+        if (!cancelled) {
+          setListing(null);
+          setError('Não foi possível carregar este anúncio agora.');
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -86,20 +95,17 @@ export function ListingPage() {
   if (loading) {
     return (
       <AppShell>
-        <p>Carregando anúncio…</p>
+        <Skeleton label="Carregando anúncio…" />
       </AppShell>
     );
   }
 
+  if (error) {
+    return <Navigate to="/erro" replace state={{ from: `/anuncio/${listingId}` }} />;
+  }
+
   if (!listing) {
-    return (
-      <AppShell>
-        <div className="empty-state">
-          <h2>Anúncio não encontrado</h2>
-          <Link to="/">Voltar ao início</Link>
-        </div>
-      </AppShell>
-    );
+    return <NotFoundPage />;
   }
 
   const defects = Array.isArray(listing.attributes?.defects)
@@ -111,7 +117,7 @@ export function ListingPage() {
 
   return (
     <AppShell>
-      <article className="listing-layout">
+      <article className="listing-layout gt-fade-up">
         {/* 1 — photos / title */}
         <section className="listing-hero" aria-labelledby="listing-title">
           <ListingMediaGallery media={listing.media} title={listing.title} />
@@ -145,10 +151,12 @@ export function ListingPage() {
               </span>
             ) : null}
           </p>
-          <Button type="button" disabled>
-            Compra protegida
-          </Button>
-          <FavoriteToggle targetType={EFavoriteTargetType.LISTING} targetId={listing.id} />
+          <div className="listing-cta-row">
+            <Button type="button" disabled>
+              Compra protegida
+            </Button>
+            <FavoriteToggle targetType={EFavoriteTargetType.LISTING} targetId={listing.id} />
+          </div>
           <p className="listing-cta-note">
             Checkout ainda não disponível neste mock. O rótulo indica proteção da plataforma quando
             houver fluxo de pagamento.
@@ -263,7 +271,7 @@ export function ListingPage() {
         <section className="section-block" aria-labelledby="other-heading">
           <h2 id="other-heading">Outras ofertas do mesmo produto</h2>
           {otherOffers.length > 0 ? (
-            <div className="offer-grid">
+            <div className="offer-grid gt-stagger">
               {otherOffers.map((doc) => (
                 <OfferCard key={doc.id} document={doc} />
               ))}
@@ -277,7 +285,7 @@ export function ListingPage() {
         <section className="section-block" aria-labelledby="similar-heading">
           <h2 id="similar-heading">Semelhantes</h2>
           {similar.length > 0 ? (
-            <div className="offer-grid">
+            <div className="offer-grid gt-stagger">
               {similar.map((doc) => (
                 <OfferCard key={doc.id} document={doc} />
               ))}
