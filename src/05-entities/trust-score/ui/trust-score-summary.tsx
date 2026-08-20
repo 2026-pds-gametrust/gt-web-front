@@ -13,29 +13,29 @@ export function TrustScoreSummary({ trust, compact = false }: TrustScoreSummaryP
   if (compact) {
     const topReason = trust.reasons[0];
     return (
-      <div className="offer-card__trust-block">
-        <p className="offer-card__trust">
-          Vendedor: <strong>{levelLabel}</strong>
+      <div className="flex flex-col gap-[0.15rem]">
+        <p className="m-0 text-[0.85rem] text-ink">
+          Vendedor: <strong className="font-bold text-ink">{levelLabel}</strong>
           {trust.score > 0 ? ` (${trust.score})` : ''}
         </p>
-        {topReason ? <p className="offer-card__trust-reason">{topReason}</p> : null}
+        {topReason ? <p className="m-0 text-[0.8rem] text-muted">{topReason}</p> : null}
       </div>
     );
   }
 
   return (
-    <div className="trust-score-summary">
-      <p className="offer-card__trust">
-        TrustScore: <strong>{levelLabel}</strong> ({trust.score})
+    <div className="flex flex-col gap-2">
+      <p className="m-0 text-[0.85rem] text-ink">
+        TrustScore: <strong className="font-bold text-ink">{levelLabel}</strong> ({trust.score})
       </p>
       {trust.reasons.length > 0 ? (
-        <ul className="trust-reasons">
+        <ul className="m-0 list-disc space-y-1 pl-5 text-[0.85rem] text-muted">
           {trust.reasons.map((reason) => (
             <li key={reason}>{reason}</li>
           ))}
         </ul>
       ) : (
-        <p className="trust-reasons trust-reasons--empty">Motivos ainda não disponíveis.</p>
+        <p className="m-0 text-[0.85rem] text-muted">Motivos ainda não disponíveis.</p>
       )}
     </div>
   );

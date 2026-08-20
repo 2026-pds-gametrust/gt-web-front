@@ -1,0 +1,15 @@
+{
+  "e2ePattern": "ralph-home",
+  "a11yFile": "e2e/ralph/a11y-home.spec.ts",
+  "visualFile": "e2e/ralph/visual-home.spec.ts",
+  "allowlist": [
+    "src/02-pages/home/**",
+    "e2e/ralph/a11y-home.spec.ts",
+    "e2e/ralph/visual-home.spec.ts",
+    "e2e/ralph-home.spec.ts",
+    "docs/specs/ralph-home/**",
+    "docs/ralph/loops/RL-20260819-002.*",
+    "artifacts/ralph/RL-20260819-002/**"
+  ],
+  "coverageRiskAccepted": true
+}

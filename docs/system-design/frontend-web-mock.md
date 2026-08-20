@@ -194,7 +194,7 @@ Fonte: [`images/gametrust-logo.png`](../../images/gametrust-logo.png) → `publi
 | `--gt-font-display` | Exo 2 (italic ok) | Títulos / brand feel |
 | `--gt-font` | Rajdhani | Corpo UI |
 
-Implementação: `src/06-shared/styles/global.css` · fontes em `index.html` (Google Fonts) · logo no `AppShell`.
+Implementação: `src/06-shared/styles/` (tokens + Tailwind `@theme`) · fontes em `index.html` (Google Fonts) · logo no `AppShell`.
 
 **Não negociável:** accent de CTA nunca verde; verde/teal de selo só para status concedido; sem purple gradients.
 

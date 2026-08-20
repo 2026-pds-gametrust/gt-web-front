@@ -16,6 +16,10 @@ export interface IListingDraftInput {
   videoAssetId?: string | null;
   /** At least one mode is required — the entity rejects an empty list. */
   shippingModes?: string[];
+  packageWeightGrams?: number;
+  packageLengthCm?: number;
+  packageWidthCm?: number;
+  packageHeightCm?: number;
 }
 
 export interface IListingSubmitResult {

@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AppShell } from '@widgets/app-shell/app-shell';
-import { Button } from '@shared/ui/button/button';
+import { Button, buttonClassName } from '@shared/ui/button/button';
+import { cn } from '@shared/lib/cn';
 import { FeedbackBanner } from '@shared/ui/feedback-banner/feedback-banner';
 import { FormField } from '@shared/ui/form-field/form-field';
 import { ListingMediaEditor } from '@widgets/listing-media/listing-media-editor';
@@ -12,20 +13,20 @@ import {
   useSellStore,
 } from '@features/sell-listing/model/use-sell-store';
 import { VerificationEvidencePanel } from '@widgets/verification-evidence/verification-evidence-panel';
-import { EListingCondition, EShippingMode, MIN_LISTING_PHOTOS } from '@entities/listing/model';
+import { EListingCondition, MIN_LISTING_PHOTOS } from '@entities/listing/model';
+import { ListingDeliveryFields } from '@widgets/listing-shipping/listing-delivery-fields';
+import {
+  formatShippingSummary,
+  listingDeliveryIncompleteReason,
+} from '@features/listings/lib/listing-shipping';
 
 const STEP_LABELS = [
   'Identificar',
   'Descrever',
   'Mídia',
-  'Preço',
+  'Preço e entrega',
   'Evidências',
   'Revisão',
-] as const;
-
-const SHIPPING_OPTIONS = [
-  { value: EShippingMode.PICKUP, label: 'Retirada em mãos' },
-  { value: EShippingMode.SHIPPING, label: 'Envio por transportadora' },
 ] as const;
 
 const CONDITION_OPTIONS = [
@@ -37,32 +38,57 @@ const CONDITION_OPTIONS = [
 
 export function SellPage() {
   const store = useSellStore();
+  const [mediaDraftReady, setMediaDraftReady] = useState(false);
 
   useEffect(() => {
     void store.loadOptions();
   }, [store.loadOptions]);
 
+  useEffect(() => {
+    if (store.step !== ESellStep.MEDIA) {
+      return;
+    }
+    let cancelled = false;
+    setMediaDraftReady(Boolean(store.draftListingId));
+    void (async () => {
+      const id = await store.ensureDraftListing();
+      if (!cancelled && id) {
+        setMediaDraftReady(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [store.step, store.draftListingId, store.ensureDraftListing]);
+
   const product = store.products.find((p) => p.id === store.productId);
   const canContinueIdentify = Boolean(store.productId);
   const canContinueDescribe = Boolean(store.condition);
-  const canContinuePrice = store.priceCents > 0;
-  const canContinueEvidence = store.evidenceIds.length > 0;
+  const packageDims = {
+    packageWeightGrams: store.packageWeightGrams,
+    packageLengthCm: store.packageLengthCm,
+    packageWidthCm: store.packageWidthCm,
+    packageHeightCm: store.packageHeightCm,
+  };
+  const deliveryIncomplete = listingDeliveryIncompleteReason(
+    store.shippingModes,
+    packageDims,
+  );
   const canContinueMedia =
-    store.photoAssetIds.length >= MIN_LISTING_PHOTOS &&
-    Boolean(store.videoAssetId) &&
-    store.shippingModes.length > 0;
+    store.photoAssetIds.length >= MIN_LISTING_PHOTOS && Boolean(store.videoAssetId);
+  const canContinuePrice = store.priceCents > 0 && !deliveryIncomplete;
+  const canContinueEvidence = store.evidenceIds.length > 0;
 
   if (store.status === ESellStatus.UNDER_REVIEW && store.submittedListingId) {
     return (
       <AppShell>
-        <div className="wizard-panel">
+        <div className="rounded-lg border border-border bg-surface p-6">
           <FeedbackBanner
             variant="success"
             title="Anúncio enviado para revisão"
-            message="Suas fotos e vídeo já foram enviados. Anote o código abaixo e confira se ele aparece legível junto ao produto na mídia do anúncio."
+            message="A moderação vai conferir suas fotos, o vídeo e o código de posse. Você acompanha o status em Meus anúncios."
           />
-          <VerificationEvidencePanel listingId={store.submittedListingId} compact />
-          <div className="wizard-actions">
+          <div className="mt-6 flex flex-wrap gap-3">
             <Button
               onClick={() => {
                 store.reset();
@@ -71,7 +97,7 @@ export function SellPage() {
             >
               Criar outro anúncio
             </Button>
-            <Link className="gt-button gt-button--ghost" to="/meus-anuncios" style={{ display: 'inline-flex', alignItems: 'center' }}>
+            <Link className={buttonClassName({ variant: 'ghost' })} to="/meus-anuncios">
               Meus anúncios
             </Link>
           </div>
@@ -82,7 +108,7 @@ export function SellPage() {
 
   return (
     <AppShell>
-      <div className="wizard-steps" aria-label="Passos do anúncio">
+      <div className="mb-6 flex flex-wrap gap-2" aria-label="Passos do anúncio">
         {STEP_LABELS.map((label, index) => {
           const stepNumber = (index + 1) as typeof ESellStep.IDENTIFY;
           const isCurrent = store.step === stepNumber;
@@ -90,7 +116,11 @@ export function SellPage() {
           return (
             <span
               key={label}
-              className={`wizard-step-indicator${isCurrent ? ' is-current' : ''}${isDone ? ' is-done' : ''}`}
+              className={cn(
+                'inline-flex min-h-11 items-center rounded bg-surface-muted px-3 text-[0.8rem] font-semibold text-muted transition-[background,color] duration-150',
+                isCurrent && 'bg-accent-soft text-accent-hover',
+                isDone && 'bg-seal-bg text-seal',
+              )}
             >
               {index + 1}. {label}
             </span>
@@ -98,7 +128,7 @@ export function SellPage() {
         })}
       </div>
 
-      <div className="wizard-panel gt-fade-up">
+      <div className="animate-fade-up rounded-lg border border-border bg-surface p-6 [&_h1]:mb-2 [&_h1]:mt-0 [&_h1]:font-display [&_h1]:text-2xl [&_h1]:font-extrabold [&_h1]:tracking-[-0.03em] [&_p.lead]:mb-6 [&_p.lead]:mt-0 [&_p.lead]:text-muted">
         {store.step === ESellStep.IDENTIFY ? (
           <>
             <h1>Identificar o produto</h1>
@@ -116,7 +146,7 @@ export function SellPage() {
                 ))}
               </select>
             </FormField>
-            <div className="wizard-actions">
+            <div className="mt-6 flex flex-wrap gap-3">
               <Button disabled={!canContinueIdentify} onClick={() => store.setStep(ESellStep.DESCRIBE)}>
                 Continuar
               </Button>
@@ -154,8 +184,8 @@ export function SellPage() {
                 placeholder="Ex.: caixa, cabo, carregador"
               />
             </FormField>
-            <div className="wizard-actions">
-              <Button className="gt-button--ghost" onClick={() => store.setStep(ESellStep.IDENTIFY)}>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button variant="ghost" onClick={() => store.setStep(ESellStep.IDENTIFY)}>
                 Voltar
               </Button>
               <Button disabled={!canContinueDescribe} onClick={() => store.setStep(ESellStep.MEDIA)}>
@@ -172,11 +202,18 @@ export function SellPage() {
               A oferta precisa de pelo menos {MIN_LISTING_PHOTOS} fotos da unidade e um vídeo MP4.
             </p>
 
-            <FeedbackBanner
-              variant="info"
-              title="Código de posse nas fotos e no vídeo"
-              message="Anote o código (exibido após enviar) em um papel legível e deixe-o visível junto ao produto no mesmo quadro das fotos e do vídeo. Use letra clara — o código usa caracteres fáceis de ler (sem 0/O ou 1/I)."
-            />
+            {store.draftListingId && mediaDraftReady ? (
+              <VerificationEvidencePanel
+                listingId={store.draftListingId}
+                mode="capture"
+              />
+            ) : (
+              <FeedbackBanner
+                variant="info"
+                title="Preparando código de posse…"
+                message="Em instantes você verá o código para anotar junto ao produto nas fotos e no vídeo."
+              />
+            )}
 
             <ListingMediaEditor
               photoAssetIds={store.photoAssetIds}
@@ -193,28 +230,12 @@ export function SellPage() {
               onClearVideo={store.clearVideo}
             />
 
-            <fieldset className="form-field">
-              <legend>Formas de entrega</legend>
-              <div className="checkbox-list">
-                {SHIPPING_OPTIONS.map((option) => (
-                  <label key={option.value} className="checkbox-row">
-                    <input
-                      type="checkbox"
-                      checked={store.shippingModes.includes(option.value)}
-                      onChange={() => store.toggleShippingMode(option.value)}
-                    />
-                    <span>{option.label}</span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-
             {store.error ? (
               <FeedbackBanner variant="error" title="Não foi possível enviar" message={store.error} />
             ) : null}
 
-            <div className="wizard-actions">
-              <Button className="gt-button--ghost" onClick={() => store.setStep(ESellStep.DESCRIBE)}>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button variant="ghost" onClick={() => store.setStep(ESellStep.DESCRIBE)}>
                 Voltar
               </Button>
               <Button
@@ -225,12 +246,10 @@ export function SellPage() {
               </Button>
             </div>
             {!canContinueMedia && !store.uploading ? (
-              <p className="form-hint">
+              <p className="m-0 text-[0.85rem] text-muted">
                 {store.photoAssetIds.length < MIN_LISTING_PHOTOS
                   ? `Envie pelo menos ${MIN_LISTING_PHOTOS} fotos da unidade para continuar.`
-                  : !store.videoAssetId
-                    ? 'Envie um vídeo MP4 da unidade para continuar.'
-                    : 'Escolha ao menos uma forma de entrega.'}
+                  : 'Envie um vídeo MP4 da unidade para continuar.'}
               </p>
             ) : null}
           </>
@@ -238,9 +257,11 @@ export function SellPage() {
 
         {store.step === ESellStep.PRICE ? (
           <>
-            <h1>Definir preço</h1>
-            <p className="lead">Informe o valor pedido em reais. Não sugerimos preço “certo”.</p>
-            <div className="form-field">
+            <h1>Preço e entrega</h1>
+            <p className="lead">
+              Informe o valor pedido e como o comprador recebe. Não sugerimos preço “certo”.
+            </p>
+            <div className="mb-4 flex flex-col gap-2">
               <label htmlFor="sell-price">Preço (R$)</label>
               <input
                 id="sell-price"
@@ -255,16 +276,31 @@ export function SellPage() {
               />
             </div>
             {store.priceCents > 0 ? (
-              <p className="offer-card__meta">Você informou {formatMoney(store.priceCents)}</p>
+              <p className="m-0 text-[0.875rem] text-muted">Você informou {formatMoney(store.priceCents)}</p>
             ) : null}
-            <div className="wizard-actions">
-              <Button className="gt-button--ghost" onClick={() => store.setStep(ESellStep.MEDIA)}>
+
+            <ListingDeliveryFields
+              modes={store.shippingModes}
+              packageDims={packageDims}
+              onToggleMode={store.toggleShippingMode}
+              onPackageChange={(next) => store.setShippingPackage(next)}
+            />
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button variant="ghost" onClick={() => store.setStep(ESellStep.MEDIA)}>
                 Voltar
               </Button>
               <Button disabled={!canContinuePrice} onClick={() => store.setStep(ESellStep.EVIDENCE)}>
                 Continuar
               </Button>
             </div>
+            {!canContinuePrice ? (
+              <p className="m-0 text-[0.85rem] text-muted">
+                {store.priceCents <= 0
+                  ? 'Informe o preço para continuar.'
+                  : deliveryIncomplete}
+              </p>
+            ) : null}
           </>
         ) : null}
 
@@ -275,9 +311,9 @@ export function SellPage() {
               Marque o que você consegue mostrar nas fotos e no vídeo. Selos só após revisão
               aprovada. O código de posse será exibido logo após o envio.
             </p>
-            <div className="checkbox-list">
+            <div className="flex flex-col gap-3">
               {store.evidenceOptions.map((item) => (
-                <label key={item.id} className="checkbox-row">
+                <label key={item.id} className="flex min-h-11 items-start gap-3">
                   <input
                     type="checkbox"
                     checked={store.evidenceIds.includes(item.id)}
@@ -287,8 +323,8 @@ export function SellPage() {
                 </label>
               ))}
             </div>
-            <div className="wizard-actions">
-              <Button className="gt-button--ghost" onClick={() => store.setStep(ESellStep.PRICE)}>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button variant="ghost" onClick={() => store.setStep(ESellStep.PRICE)}>
                 Voltar
               </Button>
               <Button
@@ -305,7 +341,7 @@ export function SellPage() {
           <>
             <h1>Revisar e enviar</h1>
             <p className="lead">Confira os dados. Ao enviar, o status será under_review — sem selos.</p>
-            <ul className="bullet-list">
+            <ul className="m-0 pl-[1.1rem] [&_li]:mb-1">
               <li>
                 Produto: {product ? `${product.brand} ${product.model}` : '—'}
               </li>
@@ -313,17 +349,28 @@ export function SellPage() {
               <li>Defeitos: {store.defects || '—'}</li>
               <li>Acessórios: {store.accessories || '—'}</li>
               <li>Preço: {formatMoney(store.priceCents)}</li>
+              <li>Entrega: {formatShippingSummary(store.shippingModes, packageDims)}</li>
               <li>Evidências: {store.evidenceIds.length} item(ns)</li>
               <li>Selos agora: nenhum</li>
             </ul>
+            {deliveryIncomplete ? (
+              <FeedbackBanner
+                variant="warning"
+                title="Entrega incompleta"
+                message={deliveryIncomplete}
+              />
+            ) : null}
             {store.error ? (
               <FeedbackBanner variant="error" title="Não foi possível enviar" message={store.error} />
             ) : null}
-            <div className="wizard-actions">
-              <Button className="gt-button--ghost" onClick={() => store.setStep(ESellStep.EVIDENCE)}>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button variant="ghost" onClick={() => store.setStep(ESellStep.EVIDENCE)}>
                 Voltar
               </Button>
-              <Button disabled={store.loading} onClick={() => void store.submit()}>
+              <Button
+                disabled={store.loading || Boolean(deliveryIncomplete)}
+                onClick={() => void store.submit()}
+              >
                 {store.loading ? 'Enviando…' : 'Enviar para revisão'}
               </Button>
             </div>

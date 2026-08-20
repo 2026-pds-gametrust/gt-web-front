@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { IListingMedia } from '@entities/listing/model';
+import { cn } from '@shared/lib/cn';
 import { MediaLightbox, type MediaLightboxItem } from '@widgets/moderation-media/media-lightbox';
 
 type ListingMediaGalleryProps = {
@@ -16,6 +17,9 @@ function collectPhotoUrls(media: IListingMedia): string[] {
   }
   return media.coverPhotoUrl ? [media.coverPhotoUrl] : [];
 }
+
+const STAGE =
+  'relative aspect-[4/3] overflow-hidden rounded-sm border border-border bg-[linear-gradient(145deg,#ececec,#f8f8f8),var(--gt-surface-muted)]';
 
 export function ListingMediaGallery({ media, title }: ListingMediaGalleryProps) {
   const photos = collectPhotoUrls(media);
@@ -56,16 +60,18 @@ export function ListingMediaGallery({ media, title }: ListingMediaGalleryProps) 
 
   if (slides.length === 0) {
     return (
-      <div className="listing-media listing-media--empty" role="img" aria-label="Sem mídia">
-        <div className="listing-media__stage">
-          <span className="listing-media__placeholder">Sem fotos ou vídeo neste anúncio</span>
+      <div className="grid min-w-0 gap-3" role="img" aria-label="Sem mídia">
+        <div className={cn(STAGE, 'grid place-items-center')}>
+          <span className="p-4 text-center font-semibold text-muted">
+            Sem fotos ou vídeo neste anúncio
+          </span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="listing-media">
+    <div className="grid min-w-0 gap-3">
       {lightbox ? (
         <MediaLightbox
           items={lightbox.items}
@@ -77,7 +83,7 @@ export function ListingMediaGallery({ media, title }: ListingMediaGalleryProps) 
         />
       ) : null}
 
-      <div className="listing-media__stage">
+      <div className={STAGE}>
         {activeSlide?.kind === 'video' ? (
           <video
             key={activeSlide.url}
@@ -85,7 +91,7 @@ export function ListingMediaGallery({ media, title }: ListingMediaGalleryProps) 
             controls
             preload="metadata"
             playsInline
-            className="listing-media__video-player"
+            className="block h-full w-full animate-fade-up bg-transparent object-contain"
           />
         ) : (
           <img
@@ -93,18 +99,19 @@ export function ListingMediaGallery({ media, title }: ListingMediaGalleryProps) 
             alt={`${title} — ${activeSlide?.label ?? 'foto'}`}
             loading="eager"
             key={activeSlide?.url}
+            className="block h-full w-full animate-fade-up object-contain"
           />
         )}
 
-        <div className="listing-media__toolbar">
+        <div className="absolute inset-2 bottom-auto left-auto flex items-center gap-2">
           {slides.length > 1 ? (
-            <span className="listing-media__counter">
+            <span className="rounded-sm border border-border bg-white/92 px-[0.55rem] py-[0.2rem] text-[0.75rem] font-bold tracking-[0.02em] text-muted">
               {activeIndex + 1} / {slides.length}
             </span>
           ) : null}
           <button
             type="button"
-            className="listing-media__expand"
+            className="grid h-9 w-9 cursor-pointer place-items-center rounded-sm border border-border-strong bg-white/92 text-base leading-none shadow-gt hover:border-accent hover:text-accent focus-ring"
             onClick={openLightbox}
             aria-label="Ampliar mídia"
           >
@@ -114,7 +121,11 @@ export function ListingMediaGallery({ media, title }: ListingMediaGalleryProps) 
       </div>
 
       {slides.length > 1 ? (
-        <div className="listing-media__thumbs" role="tablist" aria-label="Mídia do anúncio">
+        <div
+          className="flex gap-2 overflow-x-auto pb-0.5 [scrollbar-width:thin]"
+          role="tablist"
+          aria-label="Mídia do anúncio"
+        >
           {slides.map((slide, index) => (
             <button
               key={slide.id}
@@ -122,24 +133,33 @@ export function ListingMediaGallery({ media, title }: ListingMediaGalleryProps) 
               role="tab"
               aria-selected={index === activeIndex}
               aria-label={slide.label}
-              className={`listing-media__thumb${
-                index === activeIndex ? ' is-active' : ''
-              }${slide.kind === 'video' ? ' listing-media__thumb--video' : ''}`}
+              className={cn(
+                'relative h-[4.75rem] w-[4.75rem] shrink-0 cursor-pointer overflow-hidden rounded-sm border-2 bg-surface-muted p-0 transition-[border-color] duration-[120ms]',
+                index === activeIndex
+                  ? 'border-accent shadow-[0_0_0_1px_var(--gt-accent)]'
+                  : 'border-border hover:border-border-strong',
+              )}
               onClick={() => setActiveIndex(index)}
             >
               {slide.kind === 'video' ? (
                 <>
                   {photos[0] ? (
-                    <img src={photos[0]} alt="" loading="lazy" />
+                    <img src={photos[0]} alt="" loading="lazy" className="block h-full w-full object-cover" />
                   ) : (
-                    <span className="listing-media__video-fallback" aria-hidden="true" />
+                    <span
+                      className="block h-full w-full bg-[linear-gradient(145deg,#dedede,#f2f2f2)]"
+                      aria-hidden="true"
+                    />
                   )}
-                  <span className="listing-media__play-badge" aria-hidden="true">
+                  <span
+                    className="pointer-events-none absolute inset-0 grid place-items-center bg-black/42 text-[0.85rem] text-white"
+                    aria-hidden="true"
+                  >
                     ▶
                   </span>
                 </>
               ) : (
-                <img src={slide.url} alt="" loading="lazy" />
+                <img src={slide.url} alt="" loading="lazy" className="block h-full w-full object-cover" />
               )}
             </button>
           ))}

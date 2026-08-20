@@ -16,6 +16,7 @@ import { formatModerationDate, shortId } from '@widgets/moderation/moderation-co
 import { useAuthStore } from '@features/auth/model/use-auth-store';
 import { PageHero } from '@shared/ui/page-hero/page-hero';
 import { Skeleton } from '@shared/ui/skeleton/skeleton';
+import { buttonClassName } from '@shared/ui/button/button';
 
 export function ModerationPage() {
   const sessionUser = useAuthStore((s) => s.user);
@@ -45,8 +46,8 @@ export function ModerationPage() {
     loading,
     detailLoading,
     busy,
-    opsMessage,
-    setOpsMessage,
+    opsFeedback,
+    setOpsFeedback,
     statusFilter,
     setStatusFilter,
     scoreFilter,
@@ -59,8 +60,8 @@ export function ModerationPage() {
 
   return (
     <AppShell>
-      <PageHero titleId="moderation-heading" title="Moderação" className="moderation-hero">
-        <p className="lead">
+      <PageHero titleId="moderation-heading" title="Moderação">
+        <p className="lead mb-6 mt-0 max-w-[52rem] text-muted">
           Fila de verificação — analise mídia, vendedor e anúncio antes de conceder selo.
           Aprovar exige evidência; rejeitar exige motivo.
         </p>
@@ -83,7 +84,7 @@ export function ModerationPage() {
 
       {loading ? <Skeleton label="Carregando casos…" /> : null}
 
-      <div className="moderation-layout">
+      <div className="grid gap-8 wide:grid-cols-[minmax(280px,0.85fr)_minmax(0,1.35fr)] wide:items-start">
         {!loading ? (
           <ModerationQueuePanel
             items={queueItems}
@@ -98,24 +99,24 @@ export function ModerationPage() {
           />
         ) : null}
 
-        <section className="moderation-detail" aria-live="polite">
-          {!selected ? <p className="moderation-detail__empty">Selecione um caso na fila.</p> : null}
+        <section className="rounded-lg border border-border bg-surface p-6" aria-live="polite">
+          {!selected ? <p className="text-muted">Selecione um caso na fila.</p> : null}
 
           {selected ? (
             <>
-              <header className="moderation-detail__header">
+              <header className="mb-4 flex items-start justify-between gap-4">
                 <div>
-                  <p className="moderation-detail__eyebrow">Caso {shortId(selected.id)}</p>
-                  <h2>{listing?.title ?? selected.listingTitle}</h2>
+                  <p className="mb-1 mt-0 text-[0.85rem] font-semibold uppercase tracking-[0.04em] text-muted">Caso {shortId(selected.id)}</p>
+                  <h2 className="m-0 font-display text-[1.35rem]">{listing?.title ?? selected.listingTitle}</h2>
                 </div>
                 <ModerationStatusBadge status={selected.status} />
               </header>
 
-              <div className="moderation-detail__score">
+              <div className="mb-4">
                 <ModerationScoreBadge score={selected.aiAnalysisScore} />
               </div>
 
-              <dl className="moderation-detail__facts">
+              <dl className="mb-6 grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-3 rounded border border-border bg-surface-muted p-4 m-0 [&_dd]:mb-0 [&_dd]:mt-1 [&_dd]:font-semibold [&_dt]:text-[0.75rem] [&_dt]:uppercase [&_dt]:tracking-[0.04em] [&_dt]:text-muted">
                 <div>
                   <dt>Aberto em</dt>
                   <dd>{formatModerationDate(selected.createdAt)}</dd>
@@ -136,7 +137,7 @@ export function ModerationPage() {
                 ) : null}
               </dl>
 
-              <div className="moderation-detail__grid">
+              <div className="mb-6 grid gap-4">
                 <ModerationListingCard
                   listing={listing}
                   product={product}
@@ -155,12 +156,12 @@ export function ModerationPage() {
               <ModerationAnalysisCard selected={selected} />
 
               {proofCode ? (
-                <section className="moderation-card proof-code-card moderation-proof-code" aria-labelledby="mod-proof-code">
-                  <h3 id="mod-proof-code">Código de posse esperado</h3>
-                  <p className="proof-code-card__value" aria-label="Código esperado">
+                <section className="rounded-lg border border-border bg-surface p-4" aria-labelledby="mod-proof-code">
+                  <h3 id="mod-proof-code" className="m-0 font-display">Código de posse esperado</h3>
+                  <p className="my-3 font-display text-2xl font-extrabold tracking-[0.12em] text-accent" aria-label="Código esperado">
                     {proofCode.code}
                   </p>
-                  <p className="moderation-card__note">
+                  <p className="mt-3 mb-0 text-[0.9rem] text-muted">
                     Confirme que este código aparece legível nas evidências, junto ao produto.
                   </p>
                 </section>
@@ -176,28 +177,30 @@ export function ModerationPage() {
                 busy={busy}
                 canOperate={canOperate}
                 moderatorId={moderatorId}
-                opsMessage={opsMessage}
+                opsFeedback={opsFeedback}
+                hasPhotoEvidence={evidence.some((item) => item.type === 'PHOTO')}
                 onRunAction={runAction}
                 ensureInReview={ensureInReview}
               />
 
-              <section className="moderation-card moderation-card--ops" aria-labelledby="ops-heading">
-                <h3 id="ops-heading">Ferramentas de backoffice</h3>
-                <p className="moderation-card__note">
+              <section className="mt-6 rounded-lg border border-border bg-surface p-4" aria-labelledby="ops-heading">
+                <h3 id="ops-heading" className="m-0 font-display">Ferramentas de backoffice</h3>
+                <p className="mt-3 mb-0 text-[0.9rem] text-muted">
                   Reindexação de busca e recomputação de TrustScore. Ator:{' '}
                   <code>{shortId(moderatorId)}</code>.
                 </p>
-                <div className="moderation-actions">
+                <div className="mt-4 flex flex-wrap gap-3">
                   <button
                     type="button"
-                    className="gt-button gt-button--ghost"
+                    className={buttonClassName({ variant: 'ghost' })}
                     disabled={busy || !canOperate}
                     onClick={() =>
                       void runAction(async () => {
                         const result = await searchApi.reconcile();
-                        setOpsMessage(
-                          `Reindex: ${result.listingsReindexed} anúncios, ${result.synonymsUpserted} sinônimos`,
-                        );
+                        setOpsFeedback({
+                          variant: 'success',
+                          message: `Reindex: ${result.listingsReindexed} anúncios, ${result.synonymsUpserted} sinônimos`,
+                        });
                         return result;
                       })
                     }
@@ -207,12 +210,15 @@ export function ModerationPage() {
                   {listing ? (
                     <button
                       type="button"
-                      className="gt-button gt-button--ghost"
+                      className={buttonClassName({ variant: 'ghost' })}
                       disabled={busy || !canOperate}
                       onClick={() =>
                         void runAction(async () => {
                           const score = await trustApi.recomputeTrustScore(listing.sellerId);
-                          setOpsMessage(`TrustScore recomputado: ${score.score}`);
+                          setOpsFeedback({
+                            variant: 'success',
+                            message: `TrustScore recomputado: ${score.score}`,
+                          });
                           return score;
                         })
                       }

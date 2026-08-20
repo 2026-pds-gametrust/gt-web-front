@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AppShell } from '@widgets/app-shell/app-shell';
-import { Button } from '@shared/ui/button/button';
+import { Button, buttonClassName } from '@shared/ui/button/button';
 import { PageHero } from '@shared/ui/page-hero/page-hero';
 import { FeedbackBanner } from '@shared/ui/feedback-banner/feedback-banner';
 import { Skeleton } from '@shared/ui/skeleton/skeleton';
@@ -183,11 +183,11 @@ export function CatalogAdminPage() {
         </p>
       </PageHero>
 
-      <div className="toolbar" role="group" aria-label="Seções do catálogo">
+      <div className="mb-4 flex flex-wrap items-center gap-3" role="group" aria-label="Seções do catálogo">
         {TABS.map((item) => (
           <Button
             key={item.id}
-            className={tab === item.id ? '' : 'gt-button--ghost'}
+            variant={tab === item.id ? 'primary' : 'ghost'}
             onClick={() => {
               setTab(item.id);
               resetForms();
@@ -210,23 +210,24 @@ export function CatalogAdminPage() {
 
       {!loading && tab !== 'products' ? (
         <>
-          <div className="wizard-panel">
+          <div className="rounded-lg border border-border bg-surface p-6">
             <h2>{editingId ? 'Editar' : 'Criar'}</h2>
-            <div className="form-field">
+            <div className="mb-4 flex flex-col gap-2">
               <label htmlFor="tax-name">Nome</label>
-              <input id="tax-name" value={name} onChange={(e) => setName(e.target.value)} />
+              <input id="tax-name" className="min-h-11 rounded border border-border-strong bg-surface px-3 py-2 focus-ring" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
-            <div className="form-field">
+            <div className="mb-4 flex flex-col gap-2">
               <label htmlFor="tax-synonyms">Sinônimos (separados por vírgula)</label>
               <input
                 id="tax-synonyms"
+                className="min-h-11 rounded border border-border-strong bg-surface px-3 py-2 focus-ring"
                 value={synonyms}
                 onChange={(e) => setSynonyms(e.target.value)}
               />
             </div>
-            <div className="wizard-actions">
+            <div className="mt-6 flex flex-wrap gap-3">
               {editingId ? (
-                <Button className="gt-button--ghost" onClick={resetForms}>
+                <Button variant="ghost" onClick={resetForms}>
                   Cancelar
                 </Button>
               ) : null}
@@ -236,13 +237,13 @@ export function CatalogAdminPage() {
             </div>
           </div>
 
-          <ul className="bullet-list" aria-label={tab === 'categories' ? 'Categorias' : 'Serviços'}>
+          <ul className="m-0 pl-[1.1rem] [&_li]:mb-1" aria-label={tab === 'categories' ? 'Categorias' : 'Serviços'}>
             {taxonomyRows.map((row) => (
               <li key={row.id}>
                 <strong>{row.name}</strong> · {row.slug} · {row.status}
                 <button
                   type="button"
-                  className="gt-button gt-button--ghost"
+                  className={buttonClassName({ variant: 'ghost' })}
                   onClick={() => {
                     setEditingId(row.id);
                     setName(row.name);
@@ -259,13 +260,14 @@ export function CatalogAdminPage() {
 
       {!loading && tab === 'products' ? (
         <>
-          <div className="wizard-panel">
+          <div className="rounded-lg border border-border bg-surface p-6">
             <h2>{editingId ? 'Editar produto' : 'Criar produto'}</h2>
             {!editingId ? (
-              <div className="form-field">
+              <div className="mb-4 flex flex-col gap-2">
                 <label htmlFor="prod-category">Categoria</label>
                 <select
                   id="prod-category"
+                  className="min-h-11 rounded border border-border-strong bg-surface px-3 py-2 focus-ring"
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
                 >
@@ -278,17 +280,17 @@ export function CatalogAdminPage() {
                 </select>
               </div>
             ) : null}
-            <div className="form-field">
+            <div className="mb-4 flex flex-col gap-2">
               <label htmlFor="prod-brand">Marca</label>
-              <input id="prod-brand" value={brand} onChange={(e) => setBrand(e.target.value)} />
+              <input id="prod-brand" className="min-h-11 rounded border border-border-strong bg-surface px-3 py-2 focus-ring" value={brand} onChange={(e) => setBrand(e.target.value)} />
             </div>
-            <div className="form-field">
+            <div className="mb-4 flex flex-col gap-2">
               <label htmlFor="prod-model">Modelo</label>
-              <input id="prod-model" value={model} onChange={(e) => setModel(e.target.value)} />
+              <input id="prod-model" className="min-h-11 rounded border border-border-strong bg-surface px-3 py-2 focus-ring" value={model} onChange={(e) => setModel(e.target.value)} />
             </div>
-            <div className="wizard-actions">
+            <div className="mt-6 flex flex-wrap gap-3">
               {editingId ? (
-                <Button className="gt-button--ghost" onClick={resetForms}>
+                <Button variant="ghost" onClick={resetForms}>
                   Cancelar
                 </Button>
               ) : null}
@@ -298,7 +300,7 @@ export function CatalogAdminPage() {
             </div>
           </div>
 
-          <ul className="bullet-list" aria-label="Produtos">
+          <ul className="m-0 pl-[1.1rem] [&_li]:mb-1" aria-label="Produtos">
             {products.map((product) => (
               <li key={product.id}>
                 <strong>
@@ -307,7 +309,7 @@ export function CatalogAdminPage() {
                 · {product.slug} · {product.status}
                 <button
                   type="button"
-                  className="gt-button gt-button--ghost"
+                  className={buttonClassName({ variant: 'ghost' })}
                   onClick={() => {
                     setEditingId(product.id);
                     setBrand(product.brand);

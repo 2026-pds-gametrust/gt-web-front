@@ -9,3 +9,4 @@
 | Produto | [`../context/`](../context/) |
 | Developer | `agents/agt-web-react-developer.md` |
 | Orchestrator | `agents/agt-web-orchestrator.md` |
+| Ralph Loop | `skills/ralph-visual-loop/SKILL.md`, `agents/agt-web-verifier.md` |

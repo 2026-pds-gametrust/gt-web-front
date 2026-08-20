@@ -4,8 +4,7 @@ import { listingsApi } from '@features/listings/api/listings-api';
 import { identityApi } from '@features/identity/api/identity-api';
 import { catalogApi } from '@features/catalog/api/catalog-api';
 import { trustApi } from '@features/trust-display/api/trust-api';
-import { describeAuthError } from '@features/auth/lib/auth-error-copy';
-import { ApiError } from '@shared/lib/http';
+import { describeModerationError } from './describe-moderation-error';
 import type { IProofCode } from '@entities/verification-case/model';
 import type { IEvidenceItem } from '@entities/evidence-item/model';
 import type { IListing } from '@entities/listing/model';
@@ -23,6 +22,11 @@ import type { ISeal } from '@entities/seal/model';
 import { ESealStatus } from '@entities/seal/model';
 import type { ModerationStatusFilter, ModerationScoreFilter } from './moderation-constants';
 import { MODERATION_QUEUE_PAGE_SIZE, scoreFilterToQuery } from './moderation-constants';
+
+export type IOpsFeedback = {
+  variant: 'success' | 'error';
+  message: string;
+};
 
 type UseModerationPageParams = {
   moderatorId: string;
@@ -85,7 +89,7 @@ export function useModerationPage({ moderatorId }: UseModerationPageParams) {
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [opsMessage, setOpsMessage] = useState<string | null>(null);
+  const [opsFeedback, setOpsFeedback] = useState<IOpsFeedback | null>(null);
   const [statusFilter, setStatusFilterState] = useState<ModerationStatusFilter>('ALL');
   const [scoreFilter, setScoreFilterState] = useState<ModerationScoreFilter>('ALL');
   const [searchQuery, setSearchQueryState] = useState('');
@@ -166,7 +170,7 @@ export function useModerationPage({ moderatorId }: UseModerationPageParams) {
 
     let cancelled = false;
     setDetailLoading(true);
-    setOpsMessage(null);
+    setOpsFeedback(null);
 
     void (async () => {
       try {
@@ -223,18 +227,16 @@ export function useModerationPage({ moderatorId }: UseModerationPageParams) {
 
   async function runAction(action: () => Promise<unknown>) {
     setBusy(true);
-    setOpsMessage(null);
+    setOpsFeedback(null);
     try {
       await action();
       await refreshCases(selectedId);
+      setOpsFeedback((current) => current ?? { variant: 'success', message: 'Ação concluída.' });
     } catch (err) {
-      if (err instanceof ApiError && err.status === 409) {
-        setOpsMessage(
-          'Não foi possível atualizar este caso no estado atual. Se o anúncio já tiver selo ativo, revogue-o antes de aprovar de novo.',
-        );
-      } else {
-        setOpsMessage(describeAuthError(err, 'session'));
-      }
+      setOpsFeedback({
+        variant: 'error',
+        message: describeModerationError(err, listing),
+      });
     } finally {
       setBusy(false);
     }
@@ -263,8 +265,8 @@ export function useModerationPage({ moderatorId }: UseModerationPageParams) {
     loading,
     detailLoading,
     busy,
-    opsMessage,
-    setOpsMessage,
+    opsFeedback,
+    setOpsFeedback,
     statusFilter,
     setStatusFilter,
     scoreFilter,

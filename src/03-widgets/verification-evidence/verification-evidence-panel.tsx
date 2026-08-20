@@ -6,16 +6,22 @@ type VerificationEvidencePanelProps = {
   listingId: string;
   /** When true, hides the outer title (e.g. inside a success banner). */
   compact?: boolean;
+  /**
+   * `capture` — seller is still taking photos (Media step).
+   * `post-submit` — listing already sent; no re-upload here.
+   */
+  mode?: 'capture' | 'post-submit';
 };
 
 export function VerificationEvidencePanel({
   listingId,
   compact = false,
+  mode = 'post-submit',
 }: VerificationEvidencePanelProps) {
   const { proofCode, loading, error, bootstrap } = useProofCode(listingId);
 
   if (loading) {
-    return <p className="form-hint">Gerando código de posse…</p>;
+    return <p className="m-0 text-[0.85rem] text-muted">Gerando código de posse…</p>;
   }
 
   if (error && !proofCode) {
@@ -35,37 +41,56 @@ export function VerificationEvidencePanel({
 
   return (
     <section
-      className="verification-evidence-panel"
+      className="grid gap-4"
       aria-labelledby={compact ? undefined : 'proof-code-heading'}
     >
       {!compact ? (
         <>
-          <h2 id="proof-code-heading">Código de posse</h2>
-          <p className="lead">
-            Anote este código em um papel legível. Se ainda não estiver visível junto ao produto nas
-            fotos e no vídeo, atualize a mídia em Meus anúncios → Corrigir anúncio.
+          <h2 id="proof-code-heading" className="mb-2 mt-0 font-display text-2xl font-extrabold tracking-[-0.03em]">
+            Código de posse
+          </h2>
+          <p className="lead mb-6 mt-0 text-muted">
+            {mode === 'capture'
+              ? 'Anote este código em um papel legível e deixe-o visível junto ao produto nas fotos e no vídeo.'
+              : 'Anote este código em um papel legível. Se ainda não estiver visível junto ao produto nas fotos e no vídeo, atualize a mídia em Meus anúncios → Corrigir anúncio.'}
           </p>
         </>
       ) : null}
 
       {proofCode ? (
-        <div className="proof-code-card" aria-live="polite">
-          <p className="proof-code-card__label">Seu código</p>
-          <p className="proof-code-card__value" aria-label="Código de posse">
+        <div
+          className="rounded-lg border border-border bg-surface p-4"
+          aria-live="polite"
+        >
+          <p className="mb-2 mt-0 text-[0.75rem] font-bold uppercase tracking-[0.08em] text-muted">
+            Seu código
+          </p>
+          <p
+            className="my-3 font-display text-[clamp(1.75rem,5vw,2.5rem)] font-extrabold tracking-[0.12em] text-accent"
+            aria-label="Código de posse"
+          >
             {proofCode.code}
           </p>
-          <p className="proof-code-card__hint">
+          <p className="mb-0 mt-3 text-[0.85rem] text-muted">
             Escreva com letra clara, sem ambiguidade (evite confundir 0/O ou 1/I). Não publique
             este código fora do processo de verificação.
           </p>
         </div>
       ) : null}
 
-      <FeedbackBanner
-        variant="info"
-        title="Fotos e vídeo já enviados"
-        message="Não é necessário enviar mídia de novo aqui. Se o código ainda não aparece nas imagens, a moderação pode pedir para você atualizar a mídia em Meus anúncios → Corrigir anúncio."
-      />
+      {mode === 'capture' ? (
+        <FeedbackBanner
+          variant="info"
+          title="Código nas fotos e no vídeo"
+          message="O código e o produto devem aparecer no mesmo quadro. Use letra clara — o código evita caracteres confusos (sem 0/O ou 1/I)."
+        />
+      ) : (
+        <FeedbackBanner
+          variant="info"
+          title="Fotos e vídeo já enviados"
+          message="Não é necessário enviar mídia de novo aqui. Se o código ainda não aparece nas imagens, a moderação pode pedir para você atualizar a mídia em Meus anúncios → Corrigir anúncio."
+        />
+      )}
     </section>
   );
 }

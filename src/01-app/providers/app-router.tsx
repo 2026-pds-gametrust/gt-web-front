@@ -7,8 +7,13 @@ import { SellPage } from '@pages/sell/sell-page';
 import { ListingEvidencePage } from '@pages/listing-evidence/listing-evidence-page';
 import { ReviseListingPage } from '@pages/revise-listing/revise-listing-page';
 import { MyListingsPage } from '@pages/my-listings/my-listings-page';
+import { ConversationsPage } from '@pages/conversations/conversations-page';
+import { ConversationPage } from '@pages/conversation/conversation-page';
 import { FavoritesPage } from '@pages/favorites/favorites-page';
 import { ProfilePage } from '@pages/profile/profile-page';
+import { CheckoutPage } from '@pages/checkout/checkout-page';
+import { OrdersPage } from '@pages/orders/orders-page';
+import { OrderDetailPage } from '@pages/orders/order-detail-page';
 import { ModerationPage } from '@pages/moderation/moderation-page';
 import { CatalogAdminPage } from '@pages/admin/catalog-admin-page';
 import { UsersAdminPage } from '@pages/admin/users-admin-page';
@@ -66,6 +71,22 @@ export function AppRouter() {
         }
       />
       <Route
+        path="/mensagens"
+        element={
+          <RequireAuth>
+            <ConversationsPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/mensagens/:conversationId"
+        element={
+          <RequireAuth>
+            <ConversationPage />
+          </RequireAuth>
+        }
+      />
+      <Route
         path="/favoritos"
         element={
           <RequireAuth>
@@ -78,6 +99,30 @@ export function AppRouter() {
         element={
           <RequireAuth>
             <ProfilePage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/checkout/:listingId"
+        element={
+          <RequireAuth>
+            <CheckoutPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/compras"
+        element={
+          <RequireAuth>
+            <OrdersPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/compras/:orderId"
+        element={
+          <RequireAuth>
+            <OrderDetailPage />
           </RequireAuth>
         }
       />

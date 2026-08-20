@@ -13,7 +13,7 @@ Page:      (todas as pages 02-pages/* envolvem AppShell)
 Widgets:   src/03-widgets/app-shell/app-shell.tsx
 Features:  —
 Entities:  —
-Shared:    src/06-shared/styles/global.css (tokens)
+Shared:    src/06-shared/styles/{index.css,tokens.css,base.css,motion.css}
            public/brand/gametrust-logo.png
 ```
 
@@ -31,7 +31,7 @@ Nenhuma.
 
 ## Layout responsivo
 
-Header sticky; nav wrap; breakpoints em global.css (~720px).
+Header sticky; nav wrap; breakpoints Tailwind `nav` (760px) / `panel` (720px).
 
 ## Acessibilidade técnica
 

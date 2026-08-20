@@ -6,6 +6,7 @@ import { OfferCard } from '@widgets/offer-card/offer-card';
 import { useSearchStore } from '@features/search/model/use-search-store';
 import { formatMoney } from '@shared/lib/format';
 import { Button } from '@shared/ui/button/button';
+import { cn } from '@shared/lib/cn';
 import { PageHero } from '@shared/ui/page-hero/page-hero';
 import { EmptyState } from '@shared/ui/empty-state/empty-state';
 import { Skeleton } from '@shared/ui/skeleton/skeleton';
@@ -17,6 +18,10 @@ const CONDITION_LABELS: Record<string, string> = {
   FAIR: 'Regular',
   POOR: 'Com marcas',
 };
+
+const CHIP =
+  'min-h-11 rounded border border-border-strong bg-surface px-3 text-sm font-semibold focus-ring';
+const CHIP_ACTIVE = 'border-accent bg-accent-soft font-bold text-accent-hover';
 
 export function SearchPage() {
   const [params, setParams] = useSearchParams();
@@ -78,10 +83,10 @@ export function SearchPage() {
         <SearchBar initialQuery={q} />
       </PageHero>
 
-      <div className="toolbar" role="group" aria-label="Modo de visualização">
+      <div className="mb-4 flex flex-wrap items-center gap-3" role="group" aria-label="Modo de visualização">
         <button
           type="button"
-          className={`gt-chip${view === 'offers' ? ' is-active' : ''}`}
+          className={cn(CHIP, view === 'offers' && CHIP_ACTIVE)}
           aria-pressed={view === 'offers'}
           onClick={() => changeView('offers')}
         >
@@ -89,7 +94,7 @@ export function SearchPage() {
         </button>
         <button
           type="button"
-          className={`gt-chip${view === 'products' ? ' is-active' : ''}`}
+          className={cn(CHIP, view === 'products' && CHIP_ACTIVE)}
           aria-pressed={view === 'products'}
           onClick={() => changeView('products')}
         >
@@ -98,12 +103,12 @@ export function SearchPage() {
       </div>
 
       {result ? (
-        <div className="toolbar" role="group" aria-label="Filtros">
+        <div className="mb-4 flex flex-wrap items-center gap-3" role="group" aria-label="Filtros">
           {result.facets.conditions.map((condition) => (
             <button
               key={condition}
               type="button"
-              className={`gt-chip${conditionFilter === condition ? ' is-active' : ''}`}
+              className={cn(CHIP, conditionFilter === condition && CHIP_ACTIVE)}
               aria-pressed={conditionFilter === condition}
               onClick={() => toggleCondition(condition)}
             >
@@ -114,7 +119,7 @@ export function SearchPage() {
             <button
               key={brand}
               type="button"
-              className={`gt-chip${brandFilter === brand ? ' is-active' : ''}`}
+              className={cn(CHIP, brandFilter === brand && CHIP_ACTIVE)}
               aria-pressed={brandFilter === brand}
               onClick={() => toggleBrand(brand)}
             >
@@ -159,7 +164,7 @@ export function SearchPage() {
       ) : null}
 
       {!loading && result && result.total > 0 && view === 'offers' ? (
-        <div className="offer-grid gt-stagger">
+        <div className="gt-stagger grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4">
           {result.documents.map((doc) => (
             <OfferCard key={doc.id} document={doc} />
           ))}
@@ -167,18 +172,18 @@ export function SearchPage() {
       ) : null}
 
       {!loading && result && result.total > 0 && view === 'products' ? (
-        <div className="product-group-list gt-stagger">
+        <div className="gt-stagger flex flex-col gap-3">
           {result.productGroups.map((group) => (
             <Link
               key={group.productId}
               to={`/produto/${group.productId}`}
-              className="product-group-card gt-hover-lift gt-fade-up"
+              className="gt-hover-lift flex animate-fade-up flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-surface p-4"
             >
               <div>
-                <h3>
+                <h3 className="mb-1 mt-0 font-display text-[1.05rem]">
                   {group.brand} {group.model}
                 </h3>
-                <p>
+                <p className="m-0 text-[0.9rem] text-muted">
                   {group.offerCount} {group.offerCount === 1 ? 'oferta' : 'ofertas'}
                 </p>
               </div>

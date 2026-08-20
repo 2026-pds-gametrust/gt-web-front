@@ -116,6 +116,34 @@
   }
 }
 
+@keyframes gt-badge-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--gt-accent) 45%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+}
+
+@keyframes gt-bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes gt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Compat BEM helpers until JSX migration completes */
 .gt-feedback-enter,
 .gt-fade-up {
   animation: gt-fade-up 0.4s ease both;
@@ -164,57 +192,4 @@
 }
 .gt-stagger > *:nth-child(8) {
   animation-delay: 280ms;
-}
-
-.skeleton-shimmer {
-  background: linear-gradient(
-    90deg,
-    var(--gt-surface-muted) 25%,
-    var(--gt-surface) 50%,
-    var(--gt-surface-muted) 75%
-  );
-  background-size: 200% 100%;
-  animation: gt-shimmer 1.4s ease infinite;
-  border-radius: var(--gt-radius);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .gt-feedback-enter,
-  .gt-fade-up,
-  .gt-shake,
-  .gt-hover-lift,
-  .empty-state,
-  .form-field--invalid.form-field--shake,
-  .feedback-banner__check,
-  .gt-button__spinner,
-  .account-menu__panel,
-  .account-menu__chevron,
-  .skeleton-shimmer,
-  .home-skeleton__block,
-  .home-skeleton__card,
-  .offer-card,
-  .offer-rail__item,
-  .offer-grid > *,
-  .media-guide__chip,
-  .media-guide__panel,
-  .media-guide__summary-icon,
-  .media-guide__chevron,
-  .status-scene__code,
-  .status-scene__float,
-  .status-scene__scan,
-  .status-scene__fan,
-  .status-scene__heat,
-  .status-scene__cable {
-    animation: none !important;
-    transition: none !important;
-  }
-
-  .gt-hover-lift:hover,
-  .media-guide[open] .media-guide__summary-icon {
-    transform: none;
-  }
-
-  .feedback-banner__check {
-    stroke-dashoffset: 0;
-  }
 }

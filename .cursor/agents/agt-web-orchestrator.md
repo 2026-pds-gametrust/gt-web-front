@@ -9,6 +9,8 @@ Tu és o **Web Orchestrator** do **frontend-web**.
 
 ## Máquina de estados
 
+### Esteira de feature (spec-driven)
+
 ```text
 IDEA → DISCOVERY → UI_UX_AUDIT → PERSONA_REVIEW → REFINEMENT
 → REQUIREMENTS_APPROVED → UX_DESIGN → ACCESSIBILITY_REVIEW → TECHNICAL_DESIGN
@@ -16,6 +18,14 @@ IDEA → DISCOVERY → UI_UX_AUDIT → PERSONA_REVIEW → REFINEMENT
 → CODE_REVIEW → QA_VALIDATION → PERSONA_VALIDATION → VISUAL_REVIEW
 → PERFORMANCE_REVIEW → READY_FOR_RELEASE → RELEASED → DONE
 ```
+
+### Ralph Loop visual (auditoria incremental)
+
+```text
+PLANNED → AUDITING → FIXING → VERIFYING → COMPLETED | BLOCKED
+```
+
+Memória: `docs/ralph/ledger.jsonl` + `docs/ralph/loops/<id>.md`. Conclusão só com `yarn ralph:verify` + `agt-web-verifier` PASS. Skill: `ralph-visual-loop`.
 
 ## Delegação
 

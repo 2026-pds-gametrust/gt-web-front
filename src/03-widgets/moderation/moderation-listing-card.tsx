@@ -4,6 +4,7 @@ import type { IProduct } from '@entities/product/model';
 import type { ISeal } from '@entities/seal/model';
 import { SealBadge } from '@entities/seal/ui/seal-badge';
 import { formatMoney } from '@shared/lib/format';
+import { cn } from '@shared/lib/cn';
 import {
   CONDITION_LABEL,
   LISTING_STATUS_LABEL,
@@ -11,6 +12,8 @@ import {
   formatModerationDate,
   shortId,
 } from './moderation-constants';
+
+const MOD_CARD = 'rounded-lg border border-border bg-surface p-4';
 
 type ModerationListingCardProps = {
   listing: IListing | null;
@@ -29,18 +32,26 @@ export function ModerationListingCard({
 }: ModerationListingCardProps) {
   if (loading) {
     return (
-      <section className="moderation-card moderation-card--listing" aria-labelledby="listing-heading">
+      <section
+        className={cn(MOD_CARD, '[&_h3]:m-0 [&_h3]:font-display')}
+        aria-labelledby="listing-heading"
+      >
         <h3 id="listing-heading">Anúncio</h3>
-        <p className="home-status">Carregando anúncio…</p>
+        <p className="text-muted">Carregando anúncio…</p>
       </section>
     );
   }
 
   if (!listing) {
     return (
-      <section className="moderation-card moderation-card--listing" aria-labelledby="listing-heading">
+      <section
+        className={cn(MOD_CARD, '[&_h3]:m-0 [&_h3]:font-display')}
+        aria-labelledby="listing-heading"
+      >
         <h3 id="listing-heading">Anúncio</h3>
-        <p className="moderation-card__empty">Anúncio {shortId(listingId)} indisponível.</p>
+        <p className="m-0 mt-3 text-[0.9rem] text-muted">
+          Anúncio {shortId(listingId)} indisponível.
+        </p>
       </section>
     );
   }
@@ -53,61 +64,73 @@ export function ModerationListingCard({
     : [];
 
   return (
-    <section className="moderation-card moderation-card--listing" aria-labelledby="listing-heading">
-      <div className="moderation-card__header">
+    <section
+      className={cn(
+        MOD_CARD,
+        '[&_h3]:m-0 [&_h3]:font-display [&_h4]:m-0 [&_h4]:font-display [&_h5]:m-0 [&_h5]:font-display',
+      )}
+      aria-labelledby="listing-heading"
+    >
+      <div className="mb-4 flex items-center justify-between gap-3">
         <h3 id="listing-heading">Anúncio</h3>
-        <Link className="moderation-card__link" to={`/anuncio/${listing.id}`}>
+        <Link className="text-[0.875rem] font-semibold" to={`/anuncio/${listing.id}`}>
           Abrir página pública
         </Link>
       </div>
 
-      <h4 className="moderation-card__title">{listing.title}</h4>
+      <h4 className="mb-4 text-[1.1rem]">{listing.title}</h4>
 
-      <dl className="moderation-meta">
-        <div>
-          <dt>Preço</dt>
-          <dd className="moderation-card__price">{formatMoney(listing.priceCents, listing.currency)}</dd>
+      <dl className="m-0 grid gap-3">
+        <div className="grid gap-[0.15rem]">
+          <dt className="text-[0.75rem] tracking-wide text-muted uppercase">Preço</dt>
+          <dd className="m-0 text-[1.25rem] font-semibold text-accent-hover">
+            {formatMoney(listing.priceCents, listing.currency)}
+          </dd>
         </div>
-        <div>
-          <dt>Status</dt>
-          <dd>{LISTING_STATUS_LABEL[listing.status] ?? listing.status}</dd>
+        <div className="grid gap-[0.15rem]">
+          <dt className="text-[0.75rem] tracking-wide text-muted uppercase">Status</dt>
+          <dd className="m-0 font-semibold">{LISTING_STATUS_LABEL[listing.status] ?? listing.status}</dd>
         </div>
-        <div>
-          <dt>Condição</dt>
-          <dd>{CONDITION_LABEL[listing.condition] ?? listing.condition}</dd>
+        <div className="grid gap-[0.15rem]">
+          <dt className="text-[0.75rem] tracking-wide text-muted uppercase">Condição</dt>
+          <dd className="m-0 font-semibold">{CONDITION_LABEL[listing.condition] ?? listing.condition}</dd>
         </div>
-        <div>
-          <dt>Entrega</dt>
-          <dd>
+        <div className="grid gap-[0.15rem]">
+          <dt className="text-[0.75rem] tracking-wide text-muted uppercase">Entrega</dt>
+          <dd className="m-0 font-semibold">
             {listing.shipping.modes
               .map((mode) => SHIPPING_LABEL[mode] ?? mode)
               .join(', ') || '—'}
+            {listing.shipping.modes.includes('SHIPPING') &&
+            !listing.shipping.packageWeightGrams ? (
+              <span> — falta peso e medidas da embalagem</span>
+            ) : null}
           </dd>
         </div>
         {product ? (
-          <div>
-            <dt>Produto catálogo</dt>
-            <dd>
+          <div className="grid gap-[0.15rem]">
+            <dt className="text-[0.75rem] tracking-wide text-muted uppercase">Produto catálogo</dt>
+            <dd className="m-0 font-semibold">
               <Link to={`/produto/${product.id}`}>
                 {product.brand} {product.model}
               </Link>
             </dd>
           </div>
         ) : null}
-        <div>
-          <dt>Criado em</dt>
-          <dd>{formatModerationDate(listing.createdAt)}</dd>
+        <div className="grid gap-[0.15rem]">
+          <dt className="text-[0.75rem] tracking-wide text-muted uppercase">Criado em</dt>
+          <dd className="m-0 font-semibold">{formatModerationDate(listing.createdAt)}</dd>
         </div>
-        <div>
-          <dt>ID</dt>
-          <dd>
+        <div className="grid gap-[0.15rem]">
+          <dt className="text-[0.75rem] tracking-wide text-muted uppercase">ID</dt>
+          <dd className="m-0 font-semibold">
             <code>{listing.id}</code>
           </dd>
         </div>
       </dl>
 
       {seals.length > 0 ? (
-        <div className="moderation-card__seals">
+        <div className="mt-3 flex flex-wrap gap-2">
           {seals.map((seal) => (
             <SealBadge
               key={seal.id}
@@ -118,20 +141,20 @@ export function ModerationListingCard({
           ))}
         </div>
       ) : (
-        <p className="moderation-card__empty">Sem selo concedido neste anúncio.</p>
+        <p className="m-0 mt-3 text-[0.9rem] text-muted">Sem selo concedido neste anúncio.</p>
       )}
 
       {listing.description?.trim() ? (
-        <div className="moderation-card__section">
-          <h5>Descrição</h5>
+        <div className="mt-4 border-t border-border pt-4">
+          <h5 className="mb-2 text-[0.9rem]">Descrição</h5>
           <p>{listing.description}</p>
         </div>
       ) : null}
 
       {defects.length > 0 ? (
-        <div className="moderation-card__section">
-          <h5>Defeitos declarados</h5>
-          <ul className="moderation-inline-list">
+        <div className="mt-4 border-t border-border pt-4">
+          <h5 className="mb-2 text-[0.9rem]">Defeitos declarados</h5>
+          <ul className="m-0 pl-[1.1rem]">
             {defects.map((item) => (
               <li key={item}>{item}</li>
             ))}
@@ -140,9 +163,9 @@ export function ModerationListingCard({
       ) : null}
 
       {accessories.length > 0 ? (
-        <div className="moderation-card__section">
-          <h5>Acessórios</h5>
-          <ul className="moderation-inline-list">
+        <div className="mt-4 border-t border-border pt-4">
+          <h5 className="mb-2 text-[0.9rem]">Acessórios</h5>
+          <ul className="m-0 pl-[1.1rem]">
             {accessories.map((item) => (
               <li key={item}>{item}</li>
             ))}

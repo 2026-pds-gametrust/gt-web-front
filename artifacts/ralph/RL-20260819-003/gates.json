@@ -1,0 +1,103 @@
+{
+  "loopId": "RL-20260819-003",
+  "generatedAt": "2026-08-20T03:09:00.468Z",
+  "allGreen": true,
+  "coverage": {
+    "lines": 44.32,
+    "branches": 39.28,
+    "functions": 38.84,
+    "statements": 44
+  },
+  "commands": [
+    {
+      "gate": "lint",
+      "command": "yarn lint",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:08:32.381Z",
+      "finishedAt": "2026-08-20T03:08:33.781Z",
+      "stdout": "$ eslint .\n\n/Users/filipepaixao/Documents/gameTrust/frontend-web/src/02-pages/sell/sell-page.tsx\n  43:6  warning  React Hook useEffect has a missing dependency: 'store'. Either include it or remove the dependency array  react-hooks/exhaustive-deps\n\n/Users/filipepaixao/Documents/gameTrust/frontend-web/src/03-widgets/moderation-media/moderation-media-gallery.tsx\n  96:9  warning  The 'photoUrls' logical expression could make the dependencies of useMemo Hook (at line 117) change on every render. To fix this, wrap the initialization of 'photoUrls' in its own useMemo() Hook  react-hooks/exhaustive-deps\n\n✖ 2 problems (0 errors, 2 warnings)\n\n",
+      "stderr": ""
+    },
+    {
+      "gate": "typecheck",
+      "command": "yarn typecheck",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:08:33.781Z",
+      "finishedAt": "2026-08-20T03:08:35.563Z",
+      "stdout": "$ tsc -b --pretty false\n",
+      "stderr": ""
+    },
+    {
+      "gate": "test:unit",
+      "command": "yarn test:unit",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:08:35.563Z",
+      "finishedAt": "2026-08-20T03:08:37.752Z",
+      "stdout": "$ jest --passWithNoTests --testMatch='**/*.test.[jt]s?(x)'\n",
+      "stderr": "\nTest Suites: 27 passed, 27 total\nTests:       82 passed, 82 total\nSnapshots:   0 total\nTime:        1.707 s, estimated 2 s\nRan all test suites.\n"
+    },
+    {
+      "gate": "test:integration",
+      "command": "yarn test:integration",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:08:37.752Z",
+      "finishedAt": "2026-08-20T03:08:39.694Z",
+      "stdout": "$ jest --passWithNoTests --testMatch='**/__tests__/**/*.spec.[jt]s?(x)'\n",
+      "stderr": "\nTest Suites: 3 passed, 3 total\nTests:       22 passed, 22 total\nSnapshots:   0 total\nTime:        1.475 s, estimated 3 s\nRan all test suites.\n"
+    },
+    {
+      "gate": "test:coverage",
+      "command": "yarn test:coverage -- --coverageReporters=json-summary",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:08:39.694Z",
+      "finishedAt": "2026-08-20T03:08:43.010Z",
+      "stdout": "$ jest --passWithNoTests --coverage --testMatch='**/*.{test,spec}.[jt]s?(x)' --coverageReporters=json-summary\n",
+      "stderr": "warning From Yarn 1.0 onwards, scripts don't require \"--\" for options to be forwarded. In a future version, any explicit \"--\" will be forwarded as-is to the scripts.\n\nTest Suites: 34 passed, 34 total\nTests:       114 passed, 114 total\nSnapshots:   0 total\nTime:        2.966 s\nRan all test suites.\n"
+    },
+    {
+      "gate": "test:a11y",
+      "command": "yarn playwright test e2e/ralph/a11y-journey.spec.ts --config=playwright.ralph.config.ts",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:08:43.010Z",
+      "finishedAt": "2026-08-20T03:08:47.055Z",
+      "stdout": "$ /Users/filipepaixao/Documents/gameTrust/frontend-web/node_modules/.bin/playwright test e2e/ralph/a11y-journey.spec.ts --config=playwright.ralph.config.ts\n\nRunning 3 tests using 3 workers\n···\n  3 passed (3.6s)\n",
+      "stderr": "(node:48189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:48188) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:48190) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+    },
+    {
+      "gate": "test:visual",
+      "command": "yarn playwright test e2e/ralph/visual-journey.spec.ts --config=playwright.ralph.config.ts",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:08:47.055Z",
+      "finishedAt": "2026-08-20T03:08:50.085Z",
+      "stdout": "$ /Users/filipepaixao/Documents/gameTrust/frontend-web/node_modules/.bin/playwright test e2e/ralph/visual-journey.spec.ts --config=playwright.ralph.config.ts\n\nRunning 3 tests using 3 workers\n···\n  3 passed (2.6s)\n",
+      "stderr": "(node:48304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:48303) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:48302) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+    },
+    {
+      "gate": "test:e2e",
+      "command": "yarn test:e2e ralph-discovery-journey",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:08:50.085Z",
+      "finishedAt": "2026-08-20T03:08:54.982Z",
+      "stdout": "$ playwright test ralph-discovery-journey\n\nRunning 1 test using 1 worker\n×±\n\n  1) [chromium] › e2e/ralph-discovery-journey.spec.ts:9:3 › ralph discovery journey › home search opens listing detail \n\n    Error: locator.click: Error: strict mode violation: getByRole('link', { name: /Oferta: ASUS Dual RTX 4060/i }) resolved to 2 elements:\n        1) <a data-discover=\"true\" class=\"offer-card__media-link\" href=\"/anuncio/lst-4060-verified\" aria-label=\"Oferta: ASUS Dual RTX 4060 8GB — com selo\">…</a> aka getByRole('region', { name: 'Ofertas com verificação' }).getByLabel('Oferta: ASUS Dual RTX 4060')\n        2) <a data-discover=\"true\" class=\"offer-card__media-link\" href=\"/anuncio/lst-4060-verified\" aria-label=\"Oferta: ASUS Dual RTX 4060 8GB — com selo\">…</a> aka getByRole('region', { name: 'Em destaque agora' }).getByLabel('Oferta: ASUS Dual RTX 4060')\n\n    Call log:\n      - waiting for getByRole('link', { name: /Oferta: ASUS Dual RTX 4060/i })\n\n\n      15 |     await expect(page).toHaveURL(/\\/buscar\\?q=/);\n      16 |\n    > 17 |     await page.getByRole('link', { name: /Oferta: ASUS Dual RTX 4060/i }).click();\n         |                                                                           ^\n      18 |     await expect(page).toHaveURL(/\\/anuncio\\/lst-4060-verified/);\n      19 |     await expect(page.getByRole('heading', { level: 1 })).toContainText('ASUS Dual RTX 4060');\n      20 |   });\n        at /Users/filipepaixao/Documents/gameTrust/frontend-web/e2e/ralph-discovery-journey.spec.ts:17:75\n\n    Error Context: test-results/ralph-discovery-journey-ra-d7eac-search-opens-listing-detail-chromium/error-context.md\n\n  1 flaky\n    [chromium] › e2e/ralph-discovery-journey.spec.ts:9:3 › ralph discovery journey › home search opens listing detail \n",
+      "stderr": "(node:48392) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:48433) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+    },
+    {
+      "gate": "build",
+      "command": "yarn build",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:08:54.982Z",
+      "finishedAt": "2026-08-20T03:08:57.603Z",
+      "stdout": "$ tsc -b && vite build\nvite v7.3.6 building client environment for production...\ntransforming...\n✓ 235 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.82 kB │ gzip:   0.44 kB\ndist/assets/index-BdLpQ96O.css   61.45 kB │ gzip:  10.65 kB\ndist/assets/index-CZ8qWOXh.js   482.71 kB │ gzip: 150.25 kB\n✓ built in 679ms\n",
+      "stderr": ""
+    },
+    {
+      "gate": "smoke",
+      "command": "yarn smoke",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:08:57.603Z",
+      "finishedAt": "2026-08-20T03:09:00.467Z",
+      "stdout": "$ node scripts/smoke.mjs\n$ tsc -b && vite build\nvite v7.3.6 building client environment for production...\ntransforming...\n✓ 235 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.82 kB │ gzip:   0.44 kB\ndist/assets/index-BdLpQ96O.css   61.45 kB │ gzip:  10.65 kB\ndist/assets/index-CZ8qWOXh.js   482.71 kB │ gzip: 150.25 kB\n✓ built in 676ms\nSmoke OK: http://127.0.0.1:4173/\n",
+      "stderr": ""
+    }
+  ]
+}

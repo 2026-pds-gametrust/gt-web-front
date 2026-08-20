@@ -2,7 +2,7 @@
 
 Espelho de `components/schemas`.
 
-Total: **57** schemas.
+Total: **61** schemas.
 
 - [Address](./Address.md)
 - [AttributeDef](./AttributeDef.md)
@@ -31,12 +31,16 @@ Total: **57** schemas.
 - [NewFavorite](./NewFavorite.md)
 - [NewListing](./NewListing.md)
 - [NewMediaUpload](./NewMediaUpload.md)
+- [NewOrder](./NewOrder.md)
 - [NewProduct](./NewProduct.md)
 - [NewProfile](./NewProfile.md)
 - [NewServiceTaxonomy](./NewServiceTaxonomy.md)
 - [NewTrustEvent](./NewTrustEvent.md)
 - [NewUser](./NewUser.md)
 - [NewVerificationCase](./NewVerificationCase.md)
+- [Order](./Order.md)
+- [OrderPage](./OrderPage.md)
+- [OrderStatus](./OrderStatus.md)
 - [PriceHistory](./PriceHistory.md)
 - [Product](./Product.md)
 - [Profile](./Profile.md)

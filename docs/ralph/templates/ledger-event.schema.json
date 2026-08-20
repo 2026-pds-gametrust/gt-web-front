@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gametrust.local/schemas/ralph-ledger-event/1.0",
+  "title": "RalphLedgerEvent",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "eventId",
+    "loopId",
+    "timestamp",
+    "eventType",
+    "status",
+    "actor"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0" },
+    "eventId": { "type": "string", "minLength": 1 },
+    "loopId": { "type": "string", "pattern": "^RL-[0-9]{8}-[0-9]{3}$" },
+    "parentLoopId": { "type": ["string", "null"] },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "eventType": {
+      "type": "string",
+      "enum": [
+        "LOOP_CREATED",
+        "AGENT_ENTERED",
+        "AGENT_EXITED",
+        "BASELINE_CAPTURED",
+        "FINDING_CREATED",
+        "SOLUTION_APPROVED",
+        "IMPLEMENTATION_CHANGED",
+        "TEST_AUTHORED",
+        "TEST_EXECUTED",
+        "FINDING_RESOLVED",
+        "FINDING_VERIFIED",
+        "CODE_REVIEWED",
+        "QA_VERIFIED",
+        "LOOP_BLOCKED",
+        "LOOP_COMPLETED",
+        "VERIFIER_SIGNED"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["PLANNED", "AUDITING", "FIXING", "VERIFYING", "BLOCKED", "COMPLETED"]
+    },
+    "actor": {
+      "type": "object",
+      "required": ["agentId", "role"],
+      "properties": {
+        "agentId": { "type": "string" },
+        "role": { "type": "string" },
+        "runId": { "type": "string" }
+      }
+    },
+    "context": { "type": "object" },
+    "finding": { "type": "object" },
+    "verification": { "type": "object" },
+    "decision": { "type": "object" }
+  },
+  "additionalProperties": true
+}

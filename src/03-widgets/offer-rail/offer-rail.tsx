@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { ISearchDocument } from '@entities/search-document/model';
+import { cn } from '@shared/lib/cn';
 import { OfferCard } from '@widgets/offer-card/offer-card';
 
 type OfferRailProps = {
@@ -25,20 +26,31 @@ export function OfferRail({
 
   return (
     <section
-      className={`section-block offer-rail${accent ? ' offer-rail--accent' : ''}`}
+      className={cn(
+        'mb-12',
+        accent &&
+          'rounded border border-ink border-t-[3px] border-t-accent bg-surface p-4',
+      )}
       aria-labelledby={id}
     >
-      <div className="section-block__header">
-        <h2 id={id}>{title}</h2>
+      <div className="mb-4 flex items-baseline justify-between gap-3">
+        <h2 id={id} className="m-0 font-display text-[1.25rem] font-bold tracking-[-0.02em]">
+          {title}
+        </h2>
         {seeAllHref ? (
-          <Link className="section-block__link" to={seeAllHref}>
+          <Link className="font-semibold whitespace-nowrap text-accent" to={seeAllHref}>
             {seeAllLabel}
           </Link>
         ) : null}
       </div>
-      <div className="offer-rail__track gt-stagger">
+      <div
+        className={cn(
+          'grid auto-cols-[minmax(200px,240px)] grid-flow-col gap-4 overflow-x-auto pb-2 snap-x snap-mandatory [scrollbar-width:thin]',
+          'gt-stagger',
+        )}
+      >
         {offers.map((doc) => (
-          <div key={doc.id} className="offer-rail__item">
+          <div key={doc.id} className="animate-fade-up snap-start">
             <OfferCard document={doc} reason={getReason?.(doc)} />
           </div>
         ))}

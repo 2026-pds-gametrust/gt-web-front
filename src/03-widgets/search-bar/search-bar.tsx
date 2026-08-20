@@ -1,8 +1,9 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@shared/ui/button/button';
 import { searchApi } from '@features/search/api/search-api';
+import { cn } from '@shared/lib/cn';
+import { Button } from '@shared/ui/button/button';
 
 type SearchBarProps = {
   initialQuery?: string;
@@ -31,6 +32,7 @@ export function SearchBar({
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const blurTimer = useRef<number | null>(null);
+  const compact = size === 'compact';
 
   useEffect(() => {
     setQuery(initialQuery);
@@ -67,14 +69,26 @@ export function SearchBar({
   }
 
   return (
-    <div className={`search-bar search-bar--${size} gt-fade-up`}>
-      <form className="search-bar__form" role="search" onSubmit={onSubmit}>
+    <div className="relative w-full animate-fade-up">
+      <form
+        className={cn(
+          'flex items-stretch gap-2',
+          compact && 'gap-0 overflow-hidden rounded bg-white shadow-gt',
+        )}
+        role="search"
+        onSubmit={onSubmit}
+      >
         <label className="visually-hidden" htmlFor={`${listId}-input`}>
           Buscar produtos e ofertas
         </label>
         <input
           id={`${listId}-input`}
-          className="search-bar__input"
+          className={cn(
+            'flex-1 rounded border border-border-strong bg-surface text-[1.05rem] focus-ring',
+            compact
+              ? 'min-h-11 rounded-none border-0 px-[0.85rem] py-2 shadow-none'
+              : 'min-h-[52px] px-4 shadow-gt',
+          )}
           type="search"
           value={query}
           autoFocus={autoFocus}
@@ -111,8 +125,14 @@ export function SearchBar({
             }
           }}
         />
-        <Button type="submit" className="search-bar__submit">
-          {size === 'compact' ? (
+        <Button
+          type="submit"
+          className={cn(
+            compact &&
+              'inline-flex min-w-12 items-center justify-center rounded-none p-0 tracking-normal',
+          )}
+        >
+          {compact ? (
             <>
               <SearchIcon />
               <span className="visually-hidden">Buscar</span>
@@ -123,12 +143,16 @@ export function SearchBar({
         </Button>
       </form>
       {open && suggestions.length > 0 ? (
-        <ul id={listId} className="search-bar__suggestions" role="listbox">
+        <ul
+          id={listId}
+          className="absolute top-[calc(100%+4px)] right-0 left-0 z-10 m-0 list-none rounded border border-border bg-surface p-2 shadow-[0_8px_24px_rgba(24,24,24,0.12)]"
+          role="listbox"
+        >
           {suggestions.map((item, index) => (
             <li key={item} role="presentation">
               <button
                 type="button"
-                className="search-bar__suggestion"
+                className="block min-h-11 w-full cursor-pointer rounded-sm border-0 bg-transparent px-3 py-2 text-left focus-ring hover:bg-accent-soft aria-selected:bg-accent-soft"
                 role="option"
                 aria-selected={index === activeIndex}
                 onMouseDown={(e) => e.preventDefault()}

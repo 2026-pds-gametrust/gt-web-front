@@ -1,0 +1,103 @@
+{
+  "loopId": "RL-20260819-001",
+  "generatedAt": "2026-08-20T03:07:48.364Z",
+  "allGreen": true,
+  "coverage": {
+    "lines": 44.6,
+    "branches": 39.4,
+    "functions": 39.09,
+    "statements": 44.26
+  },
+  "commands": [
+    {
+      "gate": "lint",
+      "command": "yarn lint",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:07:15.676Z",
+      "finishedAt": "2026-08-20T03:07:17.447Z",
+      "stdout": "$ eslint .\n\n/Users/filipepaixao/Documents/gameTrust/frontend-web/src/02-pages/sell/sell-page.tsx\n  43:6  warning  React Hook useEffect has a missing dependency: 'store'. Either include it or remove the dependency array  react-hooks/exhaustive-deps\n\n/Users/filipepaixao/Documents/gameTrust/frontend-web/src/03-widgets/moderation-media/moderation-media-gallery.tsx\n  96:9  warning  The 'photoUrls' logical expression could make the dependencies of useMemo Hook (at line 117) change on every render. To fix this, wrap the initialization of 'photoUrls' in its own useMemo() Hook  react-hooks/exhaustive-deps\n\n✖ 2 problems (0 errors, 2 warnings)\n\n",
+      "stderr": ""
+    },
+    {
+      "gate": "typecheck",
+      "command": "yarn typecheck",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:07:17.447Z",
+      "finishedAt": "2026-08-20T03:07:19.717Z",
+      "stdout": "$ tsc -b --pretty false\n",
+      "stderr": ""
+    },
+    {
+      "gate": "test:unit",
+      "command": "yarn test:unit",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:07:19.717Z",
+      "finishedAt": "2026-08-20T03:07:23.836Z",
+      "stdout": "$ jest --passWithNoTests --testMatch='**/*.test.[jt]s?(x)'\n",
+      "stderr": "\nTest Suites: 27 passed, 27 total\nTests:       82 passed, 82 total\nSnapshots:   0 total\nTime:        3.364 s, estimated 4 s\nRan all test suites.\n"
+    },
+    {
+      "gate": "test:integration",
+      "command": "yarn test:integration",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:07:23.837Z",
+      "finishedAt": "2026-08-20T03:07:26.152Z",
+      "stdout": "$ jest --passWithNoTests --testMatch='**/__tests__/**/*.spec.[jt]s?(x)'\n",
+      "stderr": "\nTest Suites: 3 passed, 3 total\nTests:       22 passed, 22 total\nSnapshots:   0 total\nTime:        1.769 s, estimated 2 s\nRan all test suites.\n"
+    },
+    {
+      "gate": "test:coverage",
+      "command": "yarn test:coverage -- --coverageReporters=json-summary",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:07:26.152Z",
+      "finishedAt": "2026-08-20T03:07:31.939Z",
+      "stdout": "$ jest --passWithNoTests --coverage --testMatch='**/*.{test,spec}.[jt]s?(x)' --coverageReporters=json-summary\n",
+      "stderr": "warning From Yarn 1.0 onwards, scripts don't require \"--\" for options to be forwarded. In a future version, any explicit \"--\" will be forwarded as-is to the scripts.\n\nTest Suites: 34 passed, 34 total\nTests:       114 passed, 114 total\nSnapshots:   0 total\nTime:        5.355 s\nRan all test suites.\n"
+    },
+    {
+      "gate": "test:a11y",
+      "command": "yarn playwright test e2e/ralph/a11y-offercard.spec.ts --config=playwright.ralph.config.ts",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:07:31.940Z",
+      "finishedAt": "2026-08-20T03:07:34.952Z",
+      "stdout": "$ /Users/filipepaixao/Documents/gameTrust/frontend-web/node_modules/.bin/playwright test e2e/ralph/a11y-offercard.spec.ts --config=playwright.ralph.config.ts\n\nRunning 3 tests using 3 workers\n···\n  3 passed (2.4s)\n",
+      "stderr": "(node:45740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:45741) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:45739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+    },
+    {
+      "gate": "test:visual",
+      "command": "yarn playwright test e2e/ralph/visual-offercard.spec.ts --config=playwright.ralph.config.ts",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:07:34.952Z",
+      "finishedAt": "2026-08-20T03:07:38.054Z",
+      "stdout": "$ /Users/filipepaixao/Documents/gameTrust/frontend-web/node_modules/.bin/playwright test e2e/ralph/visual-offercard.spec.ts --config=playwright.ralph.config.ts\n\nRunning 3 tests using 3 workers\n···\n  3 passed (2.5s)\n",
+      "stderr": "(node:45831) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:45830) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:45832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+    },
+    {
+      "gate": "test:e2e",
+      "command": "yarn test:e2e a11y-offercard",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:07:38.054Z",
+      "finishedAt": "2026-08-20T03:07:40.719Z",
+      "stdout": "$ playwright test a11y-offercard\n\nRunning 1 test using 1 worker\n·\n  1 passed (2.1s)\n",
+      "stderr": "(node:45920) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+    },
+    {
+      "gate": "build",
+      "command": "yarn build",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:07:40.719Z",
+      "finishedAt": "2026-08-20T03:07:44.465Z",
+      "stdout": "$ tsc -b && vite build\nvite v7.3.6 building client environment for production...\ntransforming...\n✓ 235 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.82 kB │ gzip:   0.44 kB\ndist/assets/index-DBwdziUj.css   61.37 kB │ gzip:  10.64 kB\ndist/assets/index-VUWwsyc0.js   481.88 kB │ gzip: 150.05 kB\n✓ built in 889ms\n",
+      "stderr": ""
+    },
+    {
+      "gate": "smoke",
+      "command": "yarn smoke",
+      "exitCode": 0,
+      "startedAt": "2026-08-20T03:07:44.465Z",
+      "finishedAt": "2026-08-20T03:07:48.362Z",
+      "stdout": "$ node scripts/smoke.mjs\n$ tsc -b && vite build\nvite v7.3.6 building client environment for production...\ntransforming...\n✓ 235 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.82 kB │ gzip:   0.44 kB\ndist/assets/index-DBwdziUj.css   61.37 kB │ gzip:  10.64 kB\ndist/assets/index-VUWwsyc0.js   481.88 kB │ gzip: 150.05 kB\n✓ built in 987ms\nSmoke OK: http://127.0.0.1:4173/\n",
+      "stderr": ""
+    }
+  ]
+}
