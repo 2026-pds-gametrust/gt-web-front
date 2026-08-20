@@ -1,0 +1,10 @@
+---
+description: Paridade semântica Web ↔ iOS ↔ Android
+alwaysApply: true
+---
+
+# Paridade
+
+Seguir `docs/design-system/paridade-visual.md`.
+
+Mesma semântica de selos, TrustScore, cartão, nav e ordem do anúncio. Só HTML/CSS (web) ou Compose/SwiftUI (nativos) podem adaptar layout — não o significado.
