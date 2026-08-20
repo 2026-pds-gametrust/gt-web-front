@@ -6,6 +6,7 @@ import { catalogApi } from '@features/catalog/api/catalog-api';
 import { trustApi } from '@features/trust-display/api/trust-api';
 import { describeAuthError } from '@features/auth/lib/auth-error-copy';
 import { ApiError } from '@shared/lib/http';
+import type { IProofCode } from '@entities/verification-case/model';
 import type { IEvidenceItem } from '@entities/evidence-item/model';
 import type { IListing } from '@entities/listing/model';
 import type {
@@ -73,6 +74,7 @@ export function useModerationPage({ moderatorId }: UseModerationPageParams) {
   });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [evidence, setEvidence] = useState<IEvidenceItem[]>([]);
+  const [proofCode, setProofCode] = useState<IProofCode | null>(null);
   const [listing, setListing] = useState<IListing | null>(null);
   const [seller, setSeller] = useState<IUser | null>(null);
   const [profile, setProfile] = useState<IProfile | null>(null);
@@ -152,6 +154,7 @@ export function useModerationPage({ moderatorId }: UseModerationPageParams) {
   useEffect(() => {
     if (!selected) {
       setEvidence([]);
+      setProofCode(null);
       setListing(null);
       setSeller(null);
       setProfile(null);
@@ -167,13 +170,15 @@ export function useModerationPage({ moderatorId }: UseModerationPageParams) {
 
     void (async () => {
       try {
-        const [ev, lst] = await Promise.all([
+        const [ev, lst, code] = await Promise.all([
           verificationApi.listEvidence(selected.id),
           listingsApi.getListing(selected.listingId),
+          verificationApi.getProofCode(selected.id).catch(() => null),
         ]);
         if (cancelled) return;
 
         setEvidence(ev);
+        setProofCode(code);
         setListing(lst);
         setReason(selected.decisionReason ?? '');
 
@@ -246,6 +251,7 @@ export function useModerationPage({ moderatorId }: UseModerationPageParams) {
     selectedId,
     setSelectedId,
     evidence,
+    proofCode,
     listing,
     seller,
     profile,
