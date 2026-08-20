@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Button } from '@shared/ui/button/button';
 
 export type MediaLightboxItem = {
   id: string;
@@ -55,40 +56,36 @@ export function MediaLightbox({
 
   return (
     <div
-      className="media-lightbox"
+      className="fixed inset-0 z-[1000] grid place-items-center p-4"
       role="dialog"
       aria-modal="true"
       aria-label={item.label}
     >
       <button
         type="button"
-        className="media-lightbox__backdrop"
+        className="absolute inset-0 cursor-pointer border-0 bg-black/72"
         onClick={onClose}
         aria-label="Fechar visualização ampliada"
       />
 
-      <div className="media-lightbox__panel">
-        <header className="media-lightbox__header">
-          <p className="media-lightbox__caption">{item.label}</p>
+      <div className="relative z-[1] grid max-h-[92vh] w-[min(96vw,1200px)] gap-3 rounded-[calc(var(--radius)+4px)] bg-surface p-4 shadow-[0_24px_80px_rgb(0_0_0/35%)]">
+        <header className="flex items-center gap-3">
+          <p className="m-0 flex-1 font-semibold">{item.label}</p>
           {items.length > 1 ? (
-            <span className="media-lightbox__counter">
+            <span className="text-[0.85rem] text-muted">
               {index + 1} / {items.length}
             </span>
           ) : null}
-          <button
-            type="button"
-            className="gt-button gt-button--ghost media-lightbox__close"
-            onClick={onClose}
-          >
+          <Button type="button" variant="ghost" className="shrink-0" onClick={onClose}>
             Fechar
-          </button>
+          </Button>
         </header>
 
-        <div className="media-lightbox__stage">
+        <div className="relative grid min-h-[40vh] place-items-center">
           {hasPrev ? (
             <button
               type="button"
-              className="media-lightbox__nav media-lightbox__nav--prev"
+              className="absolute top-1/2 left-2 h-11 w-11 -translate-y-1/2 cursor-pointer rounded-full border-0 bg-black/55 text-[1.75rem] leading-none text-white hover:bg-black/75 focus-ring"
               onClick={() => onChangeIndex(index - 1)}
               aria-label="Mídia anterior"
             >
@@ -100,21 +97,21 @@ export function MediaLightbox({
             <img
               src={item.url}
               alt={item.label}
-              className="media-lightbox__media"
+              className="max-h-[calc(92vh-8rem)] max-w-full rounded bg-surface-muted object-contain"
             />
           ) : (
             <video
               src={item.url}
               controls
               autoPlay
-              className="media-lightbox__media media-lightbox__media--video"
+              className="w-[min(96vw,1100px)] max-h-[calc(92vh-8rem)] max-w-full rounded bg-surface-muted object-contain"
             />
           )}
 
           {hasNext ? (
             <button
               type="button"
-              className="media-lightbox__nav media-lightbox__nav--next"
+              className="absolute top-1/2 right-2 h-11 w-11 -translate-y-1/2 cursor-pointer rounded-full border-0 bg-black/55 text-[1.75rem] leading-none text-white hover:bg-black/75 focus-ring"
               onClick={() => onChangeIndex(index + 1)}
               aria-label="Próxima mídia"
             >
