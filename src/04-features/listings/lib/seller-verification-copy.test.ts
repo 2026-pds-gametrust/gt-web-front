@@ -17,7 +17,7 @@ describe('sellerVerificationLabel', () => {
       decisionReason: 'Fotos insuficientes',
     };
     expect(sellerVerificationLabel(summary)).toBe(
-      'Reprovado — ajuste e reenvie: Fotos insuficientes',
+      'Reprovado definitivamente: Fotos insuficientes',
     );
   });
 
