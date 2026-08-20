@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { AppShell } from '@widgets/app-shell/app-shell';
+import { PageHero } from '@shared/ui/page-hero/page-hero';
 
 const LABELS: Record<string, string> = {
   categorias: 'Categorias',
@@ -15,16 +16,15 @@ export function EmBrevePage() {
 
   return (
     <AppShell>
-      <section className="page-hero" aria-labelledby="em-breve-heading">
-        <h1 id="em-breve-heading">{label}</h1>
+      <PageHero titleId="em-breve-heading" title={label}>
         <p>
           Em breve nesta versão web. Por enquanto você pode buscar ofertas, comparar produtos e
-          publicar um anúncio mockado.
+          publicar um anúncio.
         </p>
-        <Link className="gt-button" to="/" style={{ display: 'inline-flex', alignItems: 'center' }}>
+        <Link className="gt-button" to="/">
           Voltar ao início
         </Link>
-      </section>
+      </PageHero>
     </AppShell>
   );
 }
