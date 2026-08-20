@@ -1,0 +1,16 @@
+---
+description: FSD web React/TypeScript
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# FSD Web
+
+Camadas: `01-app → 02-pages → 03-widgets → 04-features → 05-entities → 06-shared`. Só importar para baixo.
+
+Slice típico: `ui` · `model` (Zustand) · `api` (usa `httpClient` do shared).
+
+- Pages/widgets só compõem; sem regra de negócio e sem `axios` direto.
+- HTTP genérico em `06-shared/lib/http`; mapeamento de endpoint na feature/entity.
+- Path aliases: `@app`, `@pages`, `@widgets`, `@features`, `@entities`, `@shared`.
+- Ver `ARCHITECTURE.md` e `Frontend_Agents.md`.
