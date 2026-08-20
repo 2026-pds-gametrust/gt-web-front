@@ -1,0 +1,591 @@
+# Índice central da knowledge base — recuperação seletiva.
+# Filtrar por topics, agents, authorityLevel, status. Não carregar a KB inteira.
+
+sources:
+  - id: SRC-W3C-001
+    title: W3C/WAI Mobile Accessibility and WCAG
+    path: sources/standards/w3c-mobile-accessibility.md
+    company: W3C / WAI
+    sourceType: normative
+    authorityLevel: N4
+    topics:
+      - accessibility
+      - mobile
+      - wcag
+    agents:
+      - agt-accessibility
+      - agt-web-qa
+      - agt-ui-ux-auditor
+      - agt-web-react-developer
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions:
+      - KB-DEC-002
+    relatedPlaybooks:
+      - playbooks/accessibility-audit.md
+
+  - id: SRC-RN-A11Y-001
+    title: React Native Accessibility
+    path: sources/standards/react-native-accessibility.md
+    company: Meta / React Native
+    sourceType: official-technology
+    authorityLevel: N5
+    topics:
+      - accessibility
+      - react-native
+      - mobile
+    agents:
+      - agt-accessibility
+      - agt-web-react-developer
+      - agt-web-qa
+      - agt-code-review
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions:
+      - KB-DEC-002
+    relatedPlaybooks:
+      - playbooks/accessibility-audit.md
+
+  - id: SRC-APPLE-HIG-001
+    title: Apple Human Interface Guidelines — Accessibility & iOS
+    path: sources/standards/apple-hig-accessibility.md
+    company: Apple
+    sourceType: normative
+    authorityLevel: N4
+    topics:
+      - accessibility
+      - ios
+      - ui-ux
+      - platform-guidelines
+    agents:
+      - agt-accessibility
+      - agt-ui-ux-auditor
+      - agt-visual-review
+      - agt-web-react-developer
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions:
+      - KB-DEC-002
+    relatedPlaybooks:
+      - playbooks/accessibility-audit.md
+      - playbooks/ui-ux-audit.md
+
+  - id: SRC-MATERIAL-001
+    title: Material Design 3 — Foundations and Accessibility
+    path: sources/standards/material-design-3.md
+    company: Google
+    sourceType: normative
+    authorityLevel: N4
+    topics:
+      - accessibility
+      - android
+      - ui-ux
+      - design-system
+      - platform-guidelines
+    agents:
+      - agt-accessibility
+      - agt-ui-ux-auditor
+      - agt-visual-review
+      - agt-web-react-developer
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions:
+      - KB-DEC-001
+      - KB-DEC-002
+    relatedPlaybooks:
+      - playbooks/ui-ux-audit.md
+      - playbooks/accessibility-audit.md
+
+  - id: SRC-NUBANK-001
+    title: Design Principles at Nubank
+    path: sources/nubank/design-principles.md
+    company: Nubank
+    sourceType: official-company-case
+    authorityLevel: N6
+    topics:
+      - ui-ux
+      - design-principles
+      - accessibility
+      - consistency
+    agents:
+      - agt-ui-ux-auditor
+      - agt-web-product-owner
+      - agt-visual-review
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions:
+      - KB-DEC-001
+      - KB-DEC-002
+    relatedPlaybooks:
+      - playbooks/ui-ux-audit.md
+
+  - id: SRC-MELI-A11Y-ANDROID-001
+    title: Accessibility in Prices — Android perspective
+    path: sources/mercado-livre/accessibility-prices-android.md
+    company: Mercado Libre
+    sourceType: official-company-case
+    authorityLevel: N6
+    topics:
+      - accessibility
+      - android
+      - talkback
+      - design-system
+    agents:
+      - agt-accessibility
+      - agt-web-react-developer
+      - agt-web-qa
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions:
+      - KB-DEC-002
+    relatedPlaybooks:
+      - playbooks/accessibility-audit.md
+
+  - id: SRC-MELI-A11Y-IOS-001
+    title: Accessible Prices on iOS within Mercado Libre
+    path: sources/mercado-livre/accessibility-prices-ios.md
+    company: Mercado Libre
+    sourceType: official-company-case
+    authorityLevel: N6
+    topics:
+      - accessibility
+      - ios
+      - voiceover
+      - design-system
+    agents:
+      - agt-accessibility
+      - agt-web-react-developer
+      - agt-web-qa
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions:
+      - KB-DEC-002
+    relatedPlaybooks:
+      - playbooks/accessibility-audit.md
+
+  - id: SRC-IFOOD-TOKENS-001
+    title: Design System — Style Dictionary at scale
+    path: sources/ifood/style-dictionary-at-scale.md
+    company: iFood
+    sourceType: official-company-case
+    authorityLevel: N6
+    topics:
+      - design-system
+      - design-tokens
+      - design-to-code
+    agents:
+      - agt-web-architecture
+      - agt-web-react-developer
+      - agt-visual-review
+      - agt-code-review
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions:
+      - KB-DEC-001
+    relatedPlaybooks: []
+
+  - id: SRC-RN-TEST-001
+    title: React Native Testing Overview
+    path: sources/standards/react-native-testing-overview.md
+    company: Meta / React Native
+    sourceType: official-technology
+    authorityLevel: N5
+    topics:
+      - testing
+      - react-native
+      - quality-assurance
+    agents:
+      - agt-web-qa
+      - agt-web-react-developer
+      - agt-code-review
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions:
+      - KB-DEC-002
+    relatedPlaybooks:
+      - playbooks/critical-journey-review.md
+
+  - id: SRC-MELI-A11Y-PROG-001
+    title: What We Have Learned from Working on Digital Accessibility
+    path: sources/mercado-livre/digital-accessibility-program.md
+    company: Mercado Libre
+    sourceType: official-company-case
+    authorityLevel: N6
+    topics:
+      - accessibility
+      - process
+      - awareness
+      - mobile
+    agents:
+      - agt-accessibility
+      - agt-web-orchestrator
+      - agt-web-qa
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions:
+      - KB-DEC-002
+    relatedPlaybooks:
+      - playbooks/accessibility-audit.md
+
+  - id: SRC-MELI-A11Y-LESSONS-001
+    title: Lessons Learned When Developing Accessibility in Prices
+    path: sources/mercado-livre/accessibility-prices-lessons.md
+    company: Mercado Libre
+    sourceType: official-company-case
+    authorityLevel: N6
+    topics:
+      - accessibility
+      - screen-readers
+      - design-system
+      - validation
+    agents:
+      - agt-accessibility
+      - agt-ui-ux-auditor
+      - agt-web-qa
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions:
+      - KB-DEC-002
+    relatedPlaybooks:
+      - playbooks/accessibility-audit.md
+
+  - id: SRC-IFOOD-A11Y-TEST-001
+    title: Testing Components and Accessibility with React Testing Library
+    path: sources/ifood/testing-a11y-rtl.md
+    company: iFood
+    sourceType: official-company-case
+    authorityLevel: N6
+    topics:
+      - testing
+      - accessibility
+      - react-testing-library
+      - quality-assurance
+    agents:
+      - agt-web-qa
+      - agt-web-react-developer
+      - agt-code-review
+      - agt-accessibility
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions:
+      - KB-DEC-002
+    relatedPlaybooks:
+      - playbooks/critical-journey-review.md
+      - playbooks/accessibility-audit.md
+
+  - id: SRC-IFOOD-A11Y-IOS-001
+    title: Ta(l)king a Big Step — iOS accessibility
+    path: sources/ifood/talking-a-big-step-ios-a11y.md
+    company: iFood
+    sourceType: official-company-case
+    authorityLevel: N6
+    topics:
+      - accessibility
+      - ios
+      - voiceover
+      - critical-journey
+    agents:
+      - agt-accessibility
+      - agt-web-qa
+      - agt-persona-simulator
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions:
+      - KB-DEC-002
+    relatedPlaybooks:
+      - playbooks/accessibility-audit.md
+      - playbooks/critical-journey-review.md
+
+  - id: SRC-NUBANK-MULTI-001
+    title: Designing a Multi-Product Experience
+    path: sources/nubank/multi-product-experience.md
+    company: Nubank
+    sourceType: official-company-case
+    authorityLevel: N6
+    topics:
+      - ui-ux
+      - information-architecture
+      - navigation
+      - user-research
+    agents:
+      - agt-ui-ux-auditor
+      - agt-user-research
+      - agt-persona-simulator
+      - agt-web-product-owner
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions:
+      - KB-DEC-003
+    relatedPlaybooks:
+      - playbooks/ui-ux-audit.md
+      - playbooks/persona-simulation.md
+
+  - id: SRC-IFOOD-CAR-001
+    title: Ordering an iFood from Your Car
+    path: sources/ifood/ordering-from-your-car.md
+    company: iFood
+    sourceType: official-company-case
+    authorityLevel: N6
+    topics:
+      - ui-ux
+      - context-of-use
+      - accessibility
+      - personas
+    agents:
+      - agt-persona-simulator
+      - agt-ui-ux-auditor
+      - agt-accessibility
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions:
+      - KB-DEC-003
+    relatedPlaybooks:
+      - playbooks/persona-simulation.md
+      - playbooks/ui-ux-audit.md
+
+  - id: SRC-IFOOD-DETAILS-001
+    title: How Details Change Everything
+    path: sources/ifood/how-details-change-everything.md
+    company: iFood
+    sourceType: official-company-case
+    authorityLevel: N6
+    topics:
+      - ui-ux
+      - microinteractions
+      - feedback
+      - visual-polish
+    agents:
+      - agt-ui-ux-auditor
+      - agt-visual-review
+      - agt-persona-simulator
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions:
+      - KB-DEC-001
+    relatedPlaybooks:
+      - playbooks/ui-ux-audit.md
+
+  - id: SRC-NUBANK-CANON-001
+    title: The Value of Canonicity
+    path: sources/nubank/value-of-canonicity.md
+    company: Nubank
+    sourceType: official-company-case
+    authorityLevel: N6
+    topics:
+      - mobile-architecture
+      - paved-road
+      - standardization
+      - technology-strategy
+    agents:
+      - agt-web-architecture
+      - agt-web-react-developer
+      - agt-code-review
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions: []
+    relatedPlaybooks: []
+
+  - id: SRC-SHOPIFY-BFCM-001
+    title: BFCM Readiness 2025
+    path: sources/shopify/bfcm-readiness.md
+    company: Shopify
+    sourceType: official-company-case
+    authorityLevel: N6
+    topics:
+      - release
+      - resilience
+      - critical-journey
+      - performance
+      - quality-assurance
+    agents:
+      - agt-web-qa
+      - agt-web-performance
+      - agt-web-release
+    status: APPROVED_FOR_REFERENCE
+    lastReviewedAt: 2026-07-16
+    relatedDecisions:
+      - KB-DEC-002
+    relatedPlaybooks:
+      - playbooks/critical-journey-review.md
+
+principles:
+  - id: PRINCIPLE-DS-01
+    title: Centralização da identidade visual
+    path: principles/principle-ds-01-design-system.md
+    status: APPROVED
+    topics:
+      - design-system
+      - design-tokens
+    agents:
+      - agt-visual-review
+      - agt-web-react-developer
+      - agt-code-review
+      - agt-ui-ux-auditor
+    relatedDecisions:
+      - KB-DEC-001
+
+  - id: PRINCIPLE-A11Y-01
+    title: Intenção acessível equivalente entre plataformas
+    path: principles/principle-a11y-01-platform-parity.md
+    status: APPROVED
+    topics:
+      - accessibility
+      - mobile
+      - platform-parity
+    agents:
+      - agt-accessibility
+      - agt-web-qa
+      - agt-web-react-developer
+    relatedDecisions:
+      - KB-DEC-002
+
+  - id: PRINCIPLE-UX-01
+    title: Feedback acionável e evidência em runtime
+    path: principles/principle-ux-01-actionable-feedback.md
+    status: APPROVED
+    topics:
+      - ui-ux
+      - feedback
+      - resilience
+    agents:
+      - agt-ui-ux-auditor
+      - agt-web-react-developer
+      - agt-web-qa
+      - agt-persona-simulator
+    relatedDecisions:
+      - KB-DEC-002
+      - KB-DEC-003
+
+  - id: PRINCIPLE-RESEARCH-01
+    title: Personas não substituem pesquisa real
+    path: principles/principle-research-01-personas-hypothesis.md
+    status: APPROVED
+    topics:
+      - user-research
+      - personas
+    agents:
+      - agt-user-research
+      - agt-persona-simulator
+      - agt-web-product-owner
+    relatedDecisions:
+      - KB-DEC-003
+
+decisions:
+  - id: KB-DEC-001
+    title: Design tokens via Tailwind theme
+    path: decisions/KB-DEC-001-design-tokens.md
+    status: APPROVED
+    decisionType: Design System
+    topics:
+      - design-system
+      - design-tokens
+      - visual-consistency
+    agents:
+      - agt-visual-review
+      - agt-web-react-developer
+      - agt-code-review
+      - agt-web-architecture
+      - agt-ui-ux-auditor
+    date: 2026-07-16
+
+  - id: KB-DEC-002
+    title: Accessibility as quality gate
+    path: decisions/KB-DEC-002-accessibility-gate.md
+    status: APPROVED
+    decisionType: Quality Gate
+    topics:
+      - accessibility
+      - quality-gate
+      - mobile
+    agents:
+      - agt-accessibility
+      - agt-web-qa
+      - agt-web-release
+      - agt-web-react-developer
+      - agt-ui-ux-auditor
+      - agt-persona-simulator
+    date: 2026-07-16
+
+  - id: KB-DEC-003
+    title: Personas as hypotheses
+    path: decisions/KB-DEC-003-persona-validation.md
+    status: APPROVED
+    decisionType: Research
+    topics:
+      - user-research
+      - personas
+      - validation
+    agents:
+      - agt-persona-simulator
+      - agt-user-research
+      - agt-web-product-owner
+      - agt-ui-ux-auditor
+    date: 2026-07-16
+
+playbooks:
+  - id: PLAYBOOK-UI-UX-AUDIT
+    title: UI/UX audit
+    path: playbooks/ui-ux-audit.md
+    status: APPROVED
+    agents:
+      - agt-ui-ux-auditor
+    relatedSkill: mobile-ui-ux-audit
+
+  - id: PLAYBOOK-A11Y-AUDIT
+    title: Accessibility audit
+    path: playbooks/accessibility-audit.md
+    status: APPROVED
+    agents:
+      - agt-accessibility
+    relatedSkill: mobile-accessibility
+
+  - id: PLAYBOOK-PERSONA-SIM
+    title: Persona simulation
+    path: playbooks/persona-simulation.md
+    status: APPROVED
+    agents:
+      - agt-persona-simulator
+    relatedSkill: persona-evaluation
+
+  - id: PLAYBOOK-CRITICAL-JOURNEY
+    title: Critical journey review
+    path: playbooks/critical-journey-review.md
+    status: APPROVED
+    agents:
+      - agt-web-qa
+      - agt-ui-ux-auditor
+      - agt-accessibility
+      - agt-persona-simulator
+    relatedSkill: mobile-quality-assurance
+
+digests:
+  - id: DIGEST-A11Y-001
+    title: Platform parity for mobile accessibility
+    path: digests/accessibility/platform-parity-a11y.md
+    status: APPROVED
+    topics:
+      - accessibility
+      - platform-parity
+      - mobile
+    agents:
+      - agt-accessibility
+      - agt-web-qa
+      - agt-web-react-developer
+    relatedDecisions:
+      - KB-DEC-002
+    relatedPrinciples:
+      - PRINCIPLE-A11Y-01
+
+agentContexts:
+  - agent: agt-ui-ux-auditor
+    path: agent-context/agt-ui-ux-auditor.md
+  - agent: agt-accessibility
+    path: agent-context/agt-accessibility.md
+  - agent: agt-persona-simulator
+    path: agent-context/agt-persona-simulator.md
+  - agent: agt-web-architecture
+    path: agent-context/agt-web-architecture.md
+  - agent: agt-web-qa
+    path: agent-context/agt-web-qa.md
+  - agent: agt-web-release
+    path: agent-context/agt-web-release.md
