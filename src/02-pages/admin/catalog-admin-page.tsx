@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AppShell } from '@widgets/app-shell/app-shell';
 import { Button } from '@shared/ui/button/button';
+import { PageHero } from '@shared/ui/page-hero/page-hero';
+import { FeedbackBanner } from '@shared/ui/feedback-banner/feedback-banner';
+import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { catalogApi } from '@features/catalog/api/catalog-api';
 import type { ICategory } from '@entities/category/model';
 import type { IServiceTaxonomy } from '@entities/service/model';
@@ -174,12 +177,11 @@ export function CatalogAdminPage() {
 
   return (
     <AppShell>
-      <section className="page-hero" aria-labelledby="catalog-admin-heading">
-        <h1 id="catalog-admin-heading">Catálogo</h1>
+      <PageHero titleId="catalog-admin-heading" title="Catálogo">
         <p className="lead">
           Categorias, serviços e produtos. Produto ≠ oferta: aqui é o modelo, não o anúncio.
         </p>
-      </section>
+      </PageHero>
 
       <div className="toolbar" role="group" aria-label="Seções do catálogo">
         {TABS.map((item) => (
@@ -198,9 +200,13 @@ export function CatalogAdminPage() {
         ))}
       </div>
 
-      {error ? <p role="alert">{error}</p> : null}
-      {message ? <p className="offer-card__meta">{message}</p> : null}
-      {loading ? <p>Carregando…</p> : null}
+      {error ? (
+        <FeedbackBanner variant="error" title="Não foi possível concluir" message={error} />
+      ) : null}
+      {message ? (
+        <FeedbackBanner variant="success" title="Salvo" message={message} />
+      ) : null}
+      {loading ? <Skeleton label="Carregando catálogo…" /> : null}
 
       {!loading && tab !== 'products' ? (
         <>
