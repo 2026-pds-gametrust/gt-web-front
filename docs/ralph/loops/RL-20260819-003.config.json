@@ -1,0 +1,13 @@
+{
+  "e2ePattern": "ralph-discovery-journey",
+  "a11yFile": "e2e/ralph/a11y-journey.spec.ts",
+  "visualFile": "e2e/ralph/visual-journey.spec.ts",
+  "allowlist": [
+    "e2e/ralph/**",
+    "e2e/ralph-discovery-journey.spec.ts",
+    "docs/specs/ralph-discovery-journey/**",
+    "docs/ralph/loops/RL-20260819-003.*",
+    "artifacts/ralph/RL-20260819-003/**"
+  ],
+  "coverageRiskAccepted": true
+}
