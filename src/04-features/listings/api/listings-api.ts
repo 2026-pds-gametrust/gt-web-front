@@ -7,11 +7,12 @@ import type {
   IUpdateListing,
   EListingStatus,
 } from '@entities/listing/model';
-import { EListingStatus as ListingStatusEnum, MIN_LISTING_PHOTOS } from '@entities/listing/model';
+import { EListingStatus as ListingStatusEnum, EShippingMode, MIN_LISTING_PHOTOS } from '@entities/listing/model';
 import type { IListingEvent } from '@entities/listing-event/model';
 import type { ISearchDocument } from '@entities/search-document/model';
 import { searchApi } from '@features/search/api/search-api';
 import type { IListingDraftInput, IListingSubmitResult } from '../model/draft-types';
+import { buildListingShipping, packageDimsAreComplete } from '../lib/listing-shipping';
 
 const SIMILAR_LIMIT = 6;
 
@@ -128,6 +129,17 @@ export const listingsApi = {
     if (shippingModes.length === 0) {
       throw new Error('Escolha ao menos uma forma de entrega.');
     }
+    if (
+      shippingModes.includes(EShippingMode.SHIPPING) &&
+      !packageDimsAreComplete({
+        packageWeightGrams: Number(draft.packageWeightGrams) || 0,
+        packageLengthCm: Number(draft.packageLengthCm) || 0,
+        packageWidthCm: Number(draft.packageWidthCm) || 0,
+        packageHeightCm: Number(draft.packageHeightCm) || 0,
+      })
+    ) {
+      throw new Error('Informe peso e medidas da embalagem para envio.');
+    }
 
     const created = await this.createListing({
       id: `lst-${Date.now()}`,
@@ -144,7 +156,12 @@ export const listingsApi = {
         assetIds: photoAssetIds,
         videoAssetId: draft.videoAssetId,
       },
-      shipping: { modes: shippingModes as IListing['shipping']['modes'] },
+      shipping: buildListingShipping(shippingModes, {
+        packageWeightGrams: draft.packageWeightGrams,
+        packageLengthCm: draft.packageLengthCm,
+        packageWidthCm: draft.packageWidthCm,
+        packageHeightCm: draft.packageHeightCm,
+      }),
       attributes: {
         defects: draft.defects ? [draft.defects] : [],
         accessories: draft.accessories ? [draft.accessories] : [],
