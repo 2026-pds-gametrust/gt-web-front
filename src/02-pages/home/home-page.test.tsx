@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { HomePage } from './home-page';
+import { ServerErrorPage } from '@pages/error/server-error-page';
 import { installHttpStub, type IHttpStub } from '@shared/lib/testing/http-stub';
 import { aSearchDocument } from '@shared/lib/testing/fixtures';
 
@@ -29,6 +30,17 @@ const PLAIN = aSearchDocument({
 });
 
 let stub: IHttpStub;
+
+function renderHome() {
+  return render(
+    <MemoryRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/erro" element={<ServerErrorPage />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+}
 
 describe('HomePage', () => {
   beforeEach(() => {
@@ -83,19 +95,16 @@ describe('HomePage', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('shows an empty state instead of inventing offers when search is down', async () => {
+  it('redirects to the server error scene when search is down', async () => {
     stub.setRoutes({
       'GET /categories': [200, CATEGORIES],
       'GET /search': [500, { error: 'boom' }],
     });
 
-    render(
-      <MemoryRouter>
-        <HomePage />
-      </MemoryRouter>,
-    );
+    renderHome();
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(/não foi possível carregar/i);
+    expect(await screen.findByRole('heading', { name: /frame drop/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: /Em destaque agora/i })).not.toBeInTheDocument();
   });
 });
