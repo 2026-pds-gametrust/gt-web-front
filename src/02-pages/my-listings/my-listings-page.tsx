@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { AppShell } from '@widgets/app-shell/app-shell';
 import { Button } from '@shared/ui/button/button';
 import { FeedbackBanner } from '@shared/ui/feedback-banner/feedback-banner';
+import { PageHero } from '@shared/ui/page-hero/page-hero';
+import { EmptyState } from '@shared/ui/empty-state/empty-state';
+import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { formatMoney } from '@shared/lib/format';
 import { listingsApi } from '@features/listings/api/listings-api';
 import {
@@ -11,11 +14,8 @@ import {
   needsRevision,
   sellerVerificationLabel,
 } from '@features/listings/lib/seller-verification-copy';
-import {
-  EListingStatus,
-  type ISellerListing,
-  type EListingStatus as ListingStatus,
-} from '@entities/listing/model';
+import { EListingStatus, type ISellerListing, type EListingStatus as ListingStatus } from '@entities/listing/model';
+import { EVerificationCaseStatus } from '@entities/verification-case/model';
 
 const STATUS_LABEL: Record<string, string> = {
   [EListingStatus.DRAFT]: 'Rascunho',
@@ -36,6 +36,23 @@ const STATUS_FILTERS: Array<{ value: '' | ListingStatus; label: string }> = [
   { value: EListingStatus.PAUSED, label: 'Pausado' },
   { value: EListingStatus.REJECTED, label: 'Rejeitado' },
 ];
+
+function needsPossessionEvidence(listing: ISellerListing): boolean {
+  const verification = listing.verificationCase;
+  if (!verification?.id) {
+    return false;
+  }
+  if (
+    listing.status !== EListingStatus.SUBMITTED &&
+    listing.status !== EListingStatus.DRAFT
+  ) {
+    return false;
+  }
+  return (
+    verification.status === EVerificationCaseStatus.PENDING ||
+    verification.status === EVerificationCaseStatus.IN_REVIEW
+  );
+}
 
 function canEditPrice(listing: ISellerListing): boolean {
   if (isTerminalRejection(listing.status, listing.verificationCase)) {
@@ -94,10 +111,9 @@ export function MyListingsPage() {
 
   return (
     <AppShell>
-      <section className="page-hero" aria-labelledby="my-listings-heading">
-        <h1 id="my-listings-heading">Meus anúncios</h1>
+      <PageHero titleId="my-listings-heading" title="Meus anúncios">
         <p className="lead">Acompanhe o status e ajuste suas ofertas.</p>
-      </section>
+      </PageHero>
 
       <div
         className="wizard-actions"
@@ -134,24 +150,23 @@ export function MyListingsPage() {
           }
         />
       ) : null}
-      {loading ? <p className="home-status">Carregando anúncios…</p> : null}
+      {loading ? <Skeleton label="Carregando anúncios…" /> : null}
 
       {!loading && listings.length === 0 ? (
-        <div className="empty-state">
-          <h2>
-            {statusFilter
-              ? 'Nenhum anúncio neste status'
-              : 'Você ainda não tem anúncios'}
-          </h2>
-          <p>
-            {statusFilter
-              ? 'Tente outro filtro ou crie uma nova oferta.'
-              : 'Crie sua primeira oferta para começar a vender.'}
-          </p>
-          <Link className="gt-button" to="/vender">
-            Anunciar
-          </Link>
-        </div>
+        <EmptyState
+          title={
+            statusFilter ? 'Nenhum anúncio neste status' : 'Você ainda não tem anúncios'
+          }
+          action={
+            <Link className="gt-button" to="/vender">
+              Anunciar
+            </Link>
+          }
+        >
+          {statusFilter
+            ? 'Tente outro filtro ou crie uma nova oferta.'
+            : 'Crie sua primeira oferta para começar a vender.'}
+        </EmptyState>
       ) : null}
 
       {!loading && listings.length > 0 ? (
@@ -244,6 +259,15 @@ export function MyListingsPage() {
                         to={`/meus-anuncios/${listing.id}/corrigir`}
                       >
                         Corrigir anúncio
+                      </Link>
+                    ) : null}
+
+                    {needsPossessionEvidence(listing) ? (
+                      <Link
+                        className="gt-button gt-button--ghost"
+                        to={`/meus-anuncios/${listing.id}/evidencias`}
+                      >
+                        Ver código de posse
                       </Link>
                     ) : null}
 
