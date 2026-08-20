@@ -4,6 +4,7 @@ import { AppShell } from '@widgets/app-shell/app-shell';
 import { useAuthStore } from '@features/auth/model/use-auth-store';
 import { Skeleton } from '@shared/ui/skeleton/skeleton';
 import { PageHero } from '@shared/ui/page-hero/page-hero';
+import { buttonClassName } from '@shared/ui/button/button';
 
 type RequireAuthProps = {
   children: ReactNode;
@@ -48,7 +49,7 @@ export function RequireAuth({ children, requireOperator = false }: RequireAuthPr
             Esta área é do time de backoffice. Sua conta continua ativa — apenas não está no
             grupo necessário.
           </p>
-          <Link className="gt-button gt-button--ghost" to="/">
+          <Link className={buttonClassName({ variant: 'ghost' })} to="/">
             Voltar ao início
           </Link>
         </PageHero>

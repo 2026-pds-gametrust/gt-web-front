@@ -1,4 +1,5 @@
 import { Link, Navigate, useLocation } from 'react-router-dom';
+import { buttonClassName } from '@shared/ui/button/button';
 import { AppShell } from '@widgets/app-shell/app-shell';
 import { AuthLayout } from '@shared/ui/auth-layout/auth-layout';
 import { FeedbackBanner } from '@shared/ui/feedback-banner/feedback-banner';
@@ -20,11 +21,11 @@ export function RegisterSuccessPage() {
   return (
     <AppShell showHeaderSearch={false}>
       <AuthLayout title={`Conta criada, ${firstName}!`}>
-        <div className="register-success gt-feedback-enter">
-          <svg className="register-success__icon" viewBox="0 0 64 64" aria-hidden="true">
+        <div className="animate-feedback-enter text-center">
+          <svg className="mx-auto mb-4 h-16 w-16 text-accent" viewBox="0 0 64 64" aria-hidden="true">
             <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="3" />
             <path
-              className="feedback-banner__check"
+              className="[stroke-dasharray:32] [stroke-dashoffset:32] animate-check-draw"
               d="M20 33l8 8 16-18"
               fill="none"
               stroke="currentColor"
@@ -40,11 +41,11 @@ export function RegisterSuccessPage() {
             message="Sua conta está pronta. Verificação de identidade e selos de anúncio são etapas separadas — nada aparece como verificado até o processo ser concluído."
           />
 
-          <div className="register-success__actions">
-            <Link className="gt-button" to="/perfil">
+          <div className="mt-6 flex flex-col gap-3 [&_a]:w-full [&_a]:justify-center">
+            <Link className={buttonClassName()} to="/perfil">
               Completar perfil
             </Link>
-            <Link className="gt-button gt-button--ghost" to="/vender">
+            <Link className={buttonClassName({ variant: 'ghost' })} to="/vender">
               Anunciar agora
             </Link>
           </div>

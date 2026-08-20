@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { buttonClassName } from '@shared/ui/button/button';
 import { AppShell } from '@widgets/app-shell/app-shell';
 import { FeedbackBanner } from '@shared/ui/feedback-banner/feedback-banner';
 import { PageHero } from '@shared/ui/page-hero/page-hero';
@@ -90,7 +91,7 @@ export function FavoritesPage() {
         <EmptyState
           title="Nenhum favorito ainda"
           action={
-            <Link className="gt-button" to="/buscar">
+            <Link className={buttonClassName()} to="/buscar">
               Buscar ofertas
             </Link>
           }
@@ -99,21 +100,21 @@ export function FavoritesPage() {
         </EmptyState>
       ) : null}
 
-      <ul className="panel-list">
+      <ul className="flex list-none flex-col gap-3 p-0 m-0">
         {resolved.map((row) => (
-          <li key={row.id} className="panel-list__item">
+          <li key={row.id} className="flex items-center justify-between gap-4 rounded border border-border bg-surface p-4">
             <div>
-              <Link to={row.href} className="panel-list__title">
+              <Link to={row.href} className="block font-bold text-ink no-underline hover:text-accent">
                 {row.title}
               </Link>
-              <p className="panel-list__meta">
+              <p className="mt-1 mb-0 text-[0.9rem] text-muted">
                 {row.targetType === EFavoriteTargetType.PRODUCT ? 'Produto' : 'Oferta'} ·{' '}
                 {row.subtitle}
               </p>
             </div>
             <button
               type="button"
-              className="gt-button gt-button--ghost"
+              className={buttonClassName({ variant: 'ghost' })}
               onClick={() => {
                 void remove(row.id);
               }}

@@ -24,4 +24,4 @@ Date: 2026-08-07
 ## Evidence
 
 - Logo em `public/brand/gametrust-logo.png` no AppShell
-- Tokens em `src/06-shared/styles/global.css`
+- Tokens em `src/06-shared/styles/tokens.css` (+ `@theme` Tailwind)

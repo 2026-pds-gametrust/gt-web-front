@@ -105,3 +105,12 @@ src/04-features/auth/
 | `@features/*` | `src/04-features/*` |
 | `@entities/*` | `src/05-entities/*` |
 | `@shared/*` | `src/06-shared/*` |
+
+## 9. Estilos (Tailwind v4)
+
+- Entrada: `src/06-shared/styles/index.css` (importada em `main.tsx`).
+- Tokens canônicos `--gt-*` em `tokens.css`, mapeados em `@theme` para utilities (`bg-accent`, `text-ink`, `font-display`, breakpoints `nav`/`panel`/`split`/`wide`).
+- Utility-first no JSX com `cn()` (`clsx` + `tailwind-merge`) e receitas `cva` colocalizadas (ex.: `Button`).
+- CSS residual: `base.css` (reset, `focus-ring`, reduced-motion) e `motion.css` (keyframes + helpers `gt-stagger` / `gt-hover-lift`).
+- Proibido: cor/espaçamento hardcoded de identidade; Framer Motion.
+- Semântica de selos/TrustScore/Produto ≠ Oferta não muda com a linguagem de estilo.

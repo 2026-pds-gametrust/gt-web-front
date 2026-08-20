@@ -12,6 +12,7 @@ Contrato curto para agents que trabalham neste repositório. Produto é canônic
 | Arquitetura | [`ARCHITECTURE.md`](ARCHITECTURE.md), [`Frontend_Agents.md`](Frontend_Agents.md) | FSD React/TS, naming, testes |
 | App | [`src/`](src/) | Camadas FSD `01-app` … `06-shared` |
 | E2E | [`e2e/`](e2e/) | Playwright (fora de `src/`) |
+| Ralph visual | [`docs/ralph/`](docs/ralph/) | Loops de auditoria, ledger JSONL, evidências |
 | Kit Cursor | [`.cursor/`](.cursor/) | Rules, agents e skills **web** |
 
 ## 2. Ordem de leitura
@@ -39,6 +40,7 @@ Contrato curto para agents que trabalham neste repositório. Produto é canônic
 | Área | Escolha |
 |------|---------|
 | UI | React + TypeScript |
+| Estilos | Tailwind CSS v4 (`@tailwindcss/vite`) + tokens `--gt-*` |
 | Bundler | Vite |
 | Router | `react-router-dom` |
 | Estado | Zustand |
@@ -72,3 +74,4 @@ Gates: requirements aprovados → design técnico → implementação → app em
 | `agt-web-product-owner` | Specs e priorização |
 | `agt-accessibility` | WCAG / teclado / leitores |
 | `agt-visual-review` / `agt-ui-ux-auditor` / `agt-persona-simulator` | Paridade e personas |
+| `agt-web-verifier` | Verificação independente do Ralph Loop visual |

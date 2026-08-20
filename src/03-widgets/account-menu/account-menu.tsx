@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@features/auth/model/use-auth-store';
+import { cn } from '@shared/lib/cn';
 
 type AccountLink = {
   to: string;
@@ -10,7 +11,8 @@ type AccountLink = {
 const ACCOUNT_LINKS: AccountLink[] = [
   { to: '/perfil', label: 'Perfil' },
   { to: '/meus-anuncios', label: 'Meus anúncios' },
-  { to: '/em-breve/compras', label: 'Compras e vendas' },
+  { to: '/mensagens', label: 'Mensagens' },
+  { to: '/compras', label: 'Compras e vendas' },
   { to: '/em-breve/notificacoes', label: 'Notificações' },
 ];
 
@@ -25,9 +27,14 @@ function firstNameOf(fullName: string): string {
   return first || fullName;
 }
 
-function Chevron() {
+function Chevron({ className }: { className?: string }) {
   return (
-    <svg className="account-menu__chevron" viewBox="0 0 12 8" aria-hidden="true" focusable="false">
+    <svg
+      className={cn('h-[0.45rem] w-[0.7rem] shrink-0 transition-transform duration-150', className)}
+      viewBox="0 0 12 8"
+      aria-hidden="true"
+      focusable="false"
+    >
       <path
         d="M1.5 1.5 6 6l4.5-4.5"
         fill="none"
@@ -39,6 +46,11 @@ function Chevron() {
     </svg>
   );
 }
+
+const menuItemClass = cn(
+  'flex min-h-11 w-full cursor-pointer items-center border-0 bg-transparent px-4 text-left font-semibold text-ink no-underline focus-ring',
+  'hover:bg-surface-muted focus-visible:bg-surface-muted',
+);
 
 export function AccountMenu() {
   const navigate = useNavigate();
@@ -74,12 +86,16 @@ export function AccountMenu() {
 
   if (!user) {
     return (
-      <div className="account-menu account-menu--guest">
-        <p className="account-menu__greeting">Olá</p>
-        <p className="account-menu__guest-actions">
-          <Link to="/entrar">Entre</Link>
+      <div className="flex min-h-11 flex-col justify-center px-3 py-[0.15rem]">
+        <p className="m-0 text-xs leading-[1.2] font-medium text-header-text/72">Olá</p>
+        <p className="m-0 text-[0.9rem] leading-[1.3] font-bold whitespace-nowrap text-white">
+          <Link className="text-inherit focus-ring hover:text-accent" to="/entrar">
+            Entre
+          </Link>
           <span aria-hidden="true"> · </span>
-          <Link to="/criar-conta">Criar conta</Link>
+          <Link className="text-inherit focus-ring hover:text-accent" to="/criar-conta">
+            Criar conta
+          </Link>
         </p>
       </div>
     );
@@ -98,31 +114,40 @@ export function AccountMenu() {
   }
 
   return (
-    <div className="account-menu" ref={rootRef}>
+    <div className="relative" ref={rootRef}>
       <button
         type="button"
-        className="account-menu__trigger"
+        className={cn(
+          'flex min-h-11 min-w-11 cursor-pointer flex-col items-start justify-center rounded border-0 bg-transparent px-3 py-[0.15rem] text-left text-header focus-ring',
+          'hover:bg-white/8',
+          open && 'bg-white/8',
+        )}
         aria-expanded={open}
         aria-haspopup="menu"
         aria-controls={menuId}
         onClick={() => setOpen((value) => !value)}
       >
-        <span className="account-menu__greeting">Olá,</span>
-        <span className="account-menu__who">
-          <span className="account-menu__name">{firstName}</span>
-          <Chevron />
+        <span className="m-0 text-xs leading-[1.2] font-medium text-header-text/72">Olá,</span>
+        <span className="inline-flex max-w-[14ch] items-center gap-[0.35rem] text-[0.95rem] leading-[1.2] font-bold text-white">
+          <span className="truncate">{firstName}</span>
+          <Chevron className={open ? 'rotate-180' : undefined} />
         </span>
       </button>
 
       {open ? (
-        <div className="account-menu__panel" id={menuId} role="menu" aria-label="Conta">
-          <div className="account-menu__group" role="group" aria-label="Sua conta">
+        <div
+          className="absolute top-[calc(100%+6px)] right-0 z-30 flex min-w-[14.5rem] animate-feedback-enter flex-col rounded border border-border bg-surface py-2 shadow-lift"
+          id={menuId}
+          role="menu"
+          aria-label="Conta"
+        >
+          <div className="flex flex-col" role="group" aria-label="Sua conta">
             {ACCOUNT_LINKS.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
                 role="menuitem"
-                className="account-menu__item"
+                className={menuItemClass}
                 onClick={closeMenu}
               >
                 {item.label}
@@ -132,17 +157,20 @@ export function AccountMenu() {
 
           {canOperate ? (
             <>
-              <div className="account-menu__divider" role="separator" />
-              <p className="account-menu__section" id={`${menuId}-ops`}>
+              <div className="my-2 h-px bg-border" role="separator" />
+              <p
+                className="mt-1 mb-0 px-4 pt-2 pb-1 text-[0.72rem] font-bold tracking-[0.06em] text-muted uppercase"
+                id={`${menuId}-ops`}
+              >
                 Operação
               </p>
-              <div className="account-menu__group" role="group" aria-labelledby={`${menuId}-ops`}>
+              <div className="flex flex-col" role="group" aria-labelledby={`${menuId}-ops`}>
                 {OPERATOR_LINKS.map((item) => (
                   <Link
                     key={item.to}
                     to={item.to}
                     role="menuitem"
-                    className="account-menu__item"
+                    className={menuItemClass}
                     onClick={closeMenu}
                   >
                     {item.label}
@@ -152,10 +180,10 @@ export function AccountMenu() {
             </>
           ) : null}
 
-          <div className="account-menu__divider" role="separator" />
+          <div className="my-2 h-px bg-border" role="separator" />
           <button
             type="button"
-            className="account-menu__item account-menu__item--danger"
+            className={cn(menuItemClass, 'text-danger')}
             role="menuitem"
             onClick={() => void onLogout()}
           >

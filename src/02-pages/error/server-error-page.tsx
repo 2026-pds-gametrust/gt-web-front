@@ -13,7 +13,7 @@ export function ServerErrorPage() {
 
   return (
     <StatusScene
-      className="status-scene--full"
+      full
       variant="down"
       code="500"
       meme="CONNECTION TIMED OUT"

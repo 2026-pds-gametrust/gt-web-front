@@ -1,5 +1,6 @@
 import type { ESealType, ISeal } from '../model';
 import { ESealStatus, SEAL_EXPLANATIONS, SEAL_LABELS } from '../model';
+import { cn } from '@shared/lib/cn';
 
 type SealBadgeProps = {
   type: ESealType;
@@ -11,6 +12,9 @@ type SealBadgeProps = {
   className?: string;
 };
 
+const sealChipClass =
+  'min-h-8 rounded-sm border-0 bg-seal-bg px-2 py-1 text-xs font-semibold text-seal';
+
 /** Renders a granted seal chip only — never fake verification styling for non-GRANTED. */
 export function SealBadge({
   type,
@@ -19,14 +23,14 @@ export function SealBadge({
   interactive = false,
   expanded = false,
   onClick,
-  className = '',
+  className,
 }: SealBadgeProps) {
   if (status !== ESealStatus.GRANTED) {
     return null;
   }
 
   const label = SEAL_LABELS[type];
-  const classes = `seal-chip${className ? ` ${className}` : ''}`;
+  const classes = cn(sealChipClass, interactive && 'cursor-pointer', className);
 
   if (interactive) {
     return (
@@ -59,7 +63,11 @@ export function SealDetail({ seal }: SealDetailProps) {
   }
 
   return (
-    <div className="seal-detail" role="region" aria-live="polite">
+    <div
+      className="rounded-sm border-l-[3px] border-seal bg-seal-bg p-2 text-[0.85rem] [&_p]:mt-1 [&_p]:mb-0 [&_p]:text-muted"
+      role="region"
+      aria-live="polite"
+    >
       <strong>{SEAL_LABELS[seal.type]}</strong>
       <p>{SEAL_EXPLANATIONS[seal.type]}</p>
       {seal.grantedAt ? (

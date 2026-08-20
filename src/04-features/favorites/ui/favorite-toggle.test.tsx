@@ -60,7 +60,6 @@ describe('FavoriteToggle', () => {
 
     const button = screen.getByRole('button', { name: 'Remover dos favoritos' });
     expect(button).toHaveAttribute('aria-pressed', 'true');
-    expect(button).toHaveClass('is-active');
 
     await user.click(button);
     expect(toggle).toHaveBeenCalledWith(EFavoriteTargetType.LISTING, 'lst-1');
