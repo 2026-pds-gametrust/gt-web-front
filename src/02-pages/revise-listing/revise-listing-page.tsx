@@ -3,6 +3,8 @@ import { Link, useParams } from 'react-router-dom';
 import { AppShell } from '@widgets/app-shell/app-shell';
 import { Button } from '@shared/ui/button/button';
 import { FeedbackBanner } from '@shared/ui/feedback-banner/feedback-banner';
+import { PageHero } from '@shared/ui/page-hero/page-hero';
+import { ListingMediaEditor } from '@widgets/listing-media/listing-media-editor';
 import { formatMoney } from '@shared/lib/format';
 import {
   ESellStatus,
@@ -10,7 +12,8 @@ import {
   useSellStore,
 } from '@features/sell-listing/model/use-sell-store';
 import { formatRequiredChangeItem } from '@features/listings/lib/seller-verification-copy';
-import { EShippingMode } from '@entities/listing/model';
+import { VerificationEvidencePanel } from '@widgets/verification-evidence/verification-evidence-panel';
+import { EShippingMode, MIN_LISTING_PHOTOS } from '@entities/listing/model';
 
 const STEP_LABELS = [
   'Identificar',
@@ -39,7 +42,7 @@ export function ReviseListingPage() {
   }, [listingId, loadListingForRevision, loadOptions]);
 
   const canContinueMedia =
-    store.photoAssetIds.length > 0 &&
+    store.photoAssetIds.length >= MIN_LISTING_PHOTOS &&
     Boolean(store.videoAssetId) &&
     store.shippingModes.length > 0;
   const canResubmit = store.canResubmitRevision();
@@ -51,8 +54,9 @@ export function ReviseListingPage() {
           <FeedbackBanner
             variant="success"
             title="Anúncio reenviado para revisão"
-            message="Um novo caso de verificação foi aberto. Acompanhe em Meus anúncios."
+            message="Suas fotos e vídeo atualizados já foram enviados. Anote o novo código abaixo e confira se ele aparece legível na mídia."
           />
+          <VerificationEvidencePanel listingId={store.revisionListingId} compact />
           <div className="wizard-actions">
             <Link className="gt-button" to="/meus-anuncios">
               Ver meus anúncios
@@ -84,12 +88,11 @@ export function ReviseListingPage() {
 
   return (
     <AppShell>
-      <section className="page-hero" aria-labelledby="revise-heading">
-        <h1 id="revise-heading">Corrigir anúncio</h1>
+      <PageHero titleId="revise-heading" title="Corrigir anúncio">
         <p className="lead">
           Ajuste somente o que foi solicitado pela moderação antes de reenviar.
         </p>
-      </section>
+      </PageHero>
 
       {store.requiredChanges.length > 0 ? (
         <section className="wizard-panel" aria-labelledby="changes-heading">
@@ -136,49 +139,24 @@ export function ReviseListingPage() {
 
       {store.step === ESellStep.MEDIA ? (
         <div className="wizard-panel">
-          <p>Fotos enviadas: {store.photoAssetIds.length}</p>
-          <label className="form-field">
-            Adicionar foto
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) {
-                  void store.addPhoto(file);
-                }
-              }}
-            />
-          </label>
-          {store.photoAssetIds.length > 0 ? (
-            <ul>
-              {store.photoAssetIds.map((assetId) => (
-                <li key={assetId}>
-                  {assetId.slice(0, 12)}…{' '}
-                  <Button
-                    className="gt-button--ghost"
-                    onClick={() => store.removePhoto(assetId)}
-                  >
-                    Remover
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          <label className="form-field">
-            Substituir vídeo
-            <input
-              type="file"
-              accept="video/*"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) {
-                  void store.setVideo(file);
-                }
-              }}
-            />
-          </label>
-          {store.videoAssetId ? <p>Vídeo: {store.videoAssetId.slice(0, 12)}…</p> : null}
+          <h1>Fotos e vídeo</h1>
+          <p className="lead">
+            A oferta precisa de pelo menos {MIN_LISTING_PHOTOS} fotos da unidade e um vídeo MP4.
+          </p>
+          <ListingMediaEditor
+            photoAssetIds={store.photoAssetIds}
+            photoPreviews={store.photoPreviews}
+            videoAssetId={store.videoAssetId}
+            videoPreview={store.videoPreview}
+            uploading={store.uploading}
+            uploadStatus={store.uploadStatus}
+            onAddPhotos={(files) => void store.addPhotos(files)}
+            onRemovePhoto={store.removePhoto}
+            onMovePhoto={store.movePhoto}
+            onReorderPhotos={store.reorderPhotos}
+            onSetVideo={(file) => void store.setVideo(file)}
+            onClearVideo={store.clearVideo}
+          />
           <fieldset>
             <legend>Entrega</legend>
             {SHIPPING_OPTIONS.map((option) => (
@@ -195,6 +173,15 @@ export function ReviseListingPage() {
           <Button disabled={!canContinueMedia} onClick={() => store.setStep(ESellStep.REVIEW)}>
             Continuar
           </Button>
+          {!canContinueMedia ? (
+            <p className="form-hint">
+              {store.photoAssetIds.length < MIN_LISTING_PHOTOS
+                ? `Envie pelo menos ${MIN_LISTING_PHOTOS} fotos da unidade para continuar.`
+                : !store.videoAssetId
+                  ? 'Envie um vídeo MP4 da unidade para continuar.'
+                  : 'Escolha ao menos uma forma de entrega.'}
+            </p>
+          ) : null}
         </div>
       ) : null}
 
